@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,8 +18,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    try {
+      return await this.usersService.create(createUserDto);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.NOT_FOUND);
+    }
   }
 
   @Get()
@@ -26,8 +32,12 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.usersService.findOne(id);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.NOT_FOUND);
+    }
   }
 
   @Patch(':id')
