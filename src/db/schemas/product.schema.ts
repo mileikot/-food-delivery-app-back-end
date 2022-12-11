@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-
-export type ProductDocument = Product & Document;
+import { HydratedDocument } from 'mongoose';
 
 @Schema()
 export class Product {
@@ -11,6 +9,13 @@ export class Product {
     minlength: 10,
   })
   title: string;
+
+  @Prop({
+    type: String,
+    required: true,
+    maxlength: 500,
+  })
+  description: string;
 
   @Prop({
     type: Number,
@@ -47,4 +52,12 @@ export class Product {
   image: Buffer;
 }
 
+export type ProductDocument = HydratedDocument<Product>;
+
 export const ProductSchema = SchemaFactory.createForClass(Product);
+
+ProductSchema.method<ProductDocument>('toJSON', function () {
+  const product = this.toObject();
+  delete product.image;
+  return product;
+});
