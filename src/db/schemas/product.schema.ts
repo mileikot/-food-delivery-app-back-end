@@ -39,7 +39,14 @@ export class Product {
   })
   totalPrice: number;
 
-  @Prop(Number)
+  @Prop({
+    type: Number,
+    validate(value) {
+      if (value > 5) {
+        throw new Error('Rating cannot be bigger than 5');
+      }
+    },
+  })
   rating: number;
 
   @Prop(Number)
