@@ -20,9 +20,7 @@ export class CategoriesController {
   @Post()
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     try {
-      return await this.categoriesService.create({
-        ...createCategoryDto,
-      });
+      return await this.categoriesService.create(createCategoryDto);
     } catch (error) {
       throw new HttpException(error, HttpStatus.BAD_REQUEST, {
         cause: error,
