@@ -15,25 +15,40 @@ export class ProductsService {
   ) {}
 
   async create(createProductDto: CreateProductDto) {
-    const { image, ...rest } = createProductDto;
+    const { image, categories, price, discount, ...rest } = createProductDto;
 
-    const formatedImage = await sharp(image).jpeg().resize(600, 600).toBuffer();
+    const formattedImage = await this.formatImage(image);
+
+    const total: number = discount
+      ? this.calculateTotal(price, discount)
+      : price;
 
     const createProduct = new this.productModel({
       ...rest,
-      totalPrice: createProductDto.price,
-      image: formatedImage,
+      discount,
+      price,
+      totalPrice: total,
+      image: formattedImage,
+      categories: JSON.parse(categories),
     });
 
     return createProduct.save();
   }
 
   async findAll(): Promise<Product[]> {
-    return await this.productModel.find().exec();
+    const products = await this.productModel
+      .find()
+      .populate<Product>('categories')
+      .exec();
+
+    return products;
   }
 
   async findOne(id: string): Promise<Product> {
-    const product = await this.productModel.findOne({ _id: id }).exec();
+    const product = await this.productModel
+      .findOne({ _id: id })
+      .populate<Product>('categories')
+      .exec();
 
     if (product === null) {
       throw new ProductNotFoundException(id);
@@ -46,19 +61,37 @@ export class ProductsService {
     id: string,
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
-    try {
-      const updatedProduct = await this.productModel
-        .findOneAndUpdate({ _id: id }, updateProductDto, { new: true })
-        .exec();
+    const { price, discount, image, categories, ...rest } = updateProductDto;
 
-      if (updatedProduct === null) {
-        throw new ProductNotFoundException(id);
-      }
+    const formattedImage = image ? await this.formatImage(image) : undefined;
 
-      return updatedProduct;
-    } catch (e) {
-      throw new Error(e);
+    const formattedCategories = categories ? JSON.parse(categories) : [];
+
+    const total =
+      price && discount ? this.calculateTotal(price, discount) : price;
+
+    const updatedProduct = await this.productModel
+      .findOneAndUpdate(
+        { _id: id },
+        {
+          $set: {
+            ...rest,
+            price,
+            totalPrice: total,
+            image: formattedImage,
+            categories: formattedCategories,
+            discount: Number(discount) === 0 ? null : discount,
+          },
+        },
+        { new: true },
+      )
+      .exec();
+
+    if (updatedProduct === null) {
+      throw new ProductNotFoundException(id);
     }
+
+    return updatedProduct;
   }
 
   async remove(id: string): Promise<Product> {
@@ -73,7 +106,7 @@ export class ProductsService {
     return deletedProduct;
   }
 
-  async getProductImage(id: string) {
+  async getProductImage(id: string): Promise<Buffer> {
     const product = await this.productModel.findOne({ _id: id }).exec();
 
     if (product === null) {
@@ -81,5 +114,13 @@ export class ProductsService {
     }
 
     return product.image;
+  }
+
+  calculateTotal(price: number, discount: number): number {
+    return Number((price - price * (discount / 100)).toFixed(1));
+  }
+
+  async formatImage(image: Buffer): Promise<Buffer> {
+    return await sharp(image).jpeg().resize(600, 600).toBuffer();
   }
 }

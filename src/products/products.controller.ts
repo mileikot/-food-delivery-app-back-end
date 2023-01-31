@@ -34,7 +34,7 @@ export class ProductsController {
         image: image.buffer,
       });
     } catch (error) {
-      throw new HttpException(error, HttpStatus.BAD_REQUEST, {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
         cause: error,
       });
     }
@@ -45,7 +45,7 @@ export class ProductsController {
     try {
       return await this.productsService.findAll();
     } catch (error) {
-      throw new HttpException(error, HttpStatus.NOT_FOUND, {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
         cause: error,
       });
     }
@@ -56,7 +56,7 @@ export class ProductsController {
     try {
       return await this.productsService.findOne(id);
     } catch (error) {
-      throw new HttpException(error.response, HttpStatus.NOT_FOUND, {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
         cause: error,
       });
     }
@@ -75,7 +75,8 @@ export class ProductsController {
         image: image?.buffer,
       });
     } catch (error) {
-      throw new HttpException(error, HttpStatus.NOT_FOUND, {
+      console.log(error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
         cause: error,
       });
     }
@@ -86,7 +87,7 @@ export class ProductsController {
     try {
       await this.productsService.remove(id);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND, {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
         cause: error,
       });
     }
@@ -99,7 +100,7 @@ export class ProductsController {
       const image = await this.productsService.getProductImage(id);
       res.send(image);
     } catch (error) {
-      throw new HttpException(error, HttpStatus.NOT_FOUND, {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
         cause: error,
       });
     }

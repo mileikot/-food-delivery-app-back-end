@@ -1,12 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import validator from 'validator';
 import * as jwt from 'jsonwebtoken';
-import { HydratedDocument, Document } from 'mongoose';
-
-export type UserDocument = HydratedDocument<User>;
+import { HydratedDocument } from 'mongoose';
+import { ConfigService } from '@nestjs/config';
+import { PartialBy } from 'src/types';
 
 @Schema()
-export class User extends Document {
+export class User {
+  constructor(readonly configService: ConfigService) {}
+
   @Prop({ type: String, required: true })
   firstName: string;
 
@@ -38,25 +40,29 @@ export class User extends Document {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-UserSchema.methods.toJSON = function () {
-  const userObject: UserDocument = this.toObject();
+export type UserDocument = HydratedDocument<User>;
 
-  delete userObject.tokens;
+UserSchema.method<UserDocument>('toJSON', function () {
+  const user = this.toObject() as PartialBy<UserDocument, 'tokens' | '__v'>;
 
-  return userObject;
-};
+  delete user.__v;
+  delete user.tokens;
 
-UserSchema.methods.generateAuthToken = async function (): Promise<string> {
-  const token: string = jwt.sign(
-    { _id: this._id.toString() },
-    process.env.JWT_SECRET,
-    {
+  return user;
+});
+
+UserSchema.method<UserDocument>(
+  'generateAuthToken',
+  async function (): Promise<string> {
+    const secret = this.configService.get('JWT_SECRET') as jwt.Secret;
+
+    const token: string = jwt.sign({ _id: this._id.toString() }, secret, {
       expiresIn: '1h',
-    },
-  );
+    });
 
-  this.tokens = this.tokens.concat(token);
-  await this.save();
+    this.tokens = this.tokens.concat(token);
+    await this.save();
 
-  return token;
-};
+    return token;
+  },
+);

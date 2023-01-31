@@ -5,4 +5,5 @@ export class CreateProductDto {
   readonly image: Buffer;
   readonly rating?: number;
   readonly discount?: number;
+  readonly categories: string;
 }
