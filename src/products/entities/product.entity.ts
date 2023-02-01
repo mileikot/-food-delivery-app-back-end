@@ -1,12 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { PartialBy } from 'src/types';
+import { Category } from '../../categories/entities/category.entity';
+import { FullProduct } from '../types';
 
 @Schema()
-export class Product {
+export class Product implements FullProduct {
   @Prop({
     type: String,
     required: true,
-    minlength: 10,
+    minlength: 5,
   })
   title: string;
 
@@ -43,13 +46,16 @@ export class Product {
     type: Number,
     validate(value) {
       if (value > 5) {
-        throw new Error('Rating cannot be bigger than 5');
+        throw new Error('Rating cannot be bigger than 5!');
       }
     },
   })
   rating: number;
 
-  @Prop(Number)
+  @Prop({
+    type: Number,
+    max: 100,
+  })
   discount: number;
 
   @Prop({
@@ -57,6 +63,17 @@ export class Product {
     required: true,
   })
   image: Buffer;
+
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: Category.name,
+    validate(categories: string[]) {
+      if (categories.length === 0) {
+        throw new Error('A product must have at least one category!');
+      }
+    },
+  })
+  categories: string[];
 }
 
 export type ProductDocument = HydratedDocument<Product>;
@@ -64,7 +81,13 @@ export type ProductDocument = HydratedDocument<Product>;
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
 ProductSchema.method<ProductDocument>('toJSON', function () {
-  const product = this.toObject();
+  const product = this.toObject() as PartialBy<
+    ProductDocument,
+    'image' | '__v'
+  >;
+
+  delete product.__v;
   delete product.image;
+
   return product;
 });
