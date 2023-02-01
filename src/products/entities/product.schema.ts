@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { PartialBy } from 'src/types';
-import { Category } from './category.schema';
+import { Category } from '../../categories/entities/category.schema';
 
 @Schema()
 export class Product {
