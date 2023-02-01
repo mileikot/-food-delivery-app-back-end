@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { PartialBy } from 'src/types';
-import { Category } from '../../categories/entities/category.schema';
+import { Category } from '../../categories/entities/category.entity';
+import { FullProduct } from '../types';
 
 @Schema()
-export class Product {
+export class Product implements FullProduct {
   @Prop({
     type: String,
     required: true,
@@ -72,7 +73,7 @@ export class Product {
       }
     },
   })
-  categories: string[] | Category[];
+  categories: string[];
 }
 
 export type ProductDocument = HydratedDocument<Product>;

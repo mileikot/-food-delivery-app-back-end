@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import {
   Category,
   CategoryDocument,
-} from 'src/categories/entities/category.schema';
+} from 'src/categories/entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryNotFoundException } from './exceptions';
