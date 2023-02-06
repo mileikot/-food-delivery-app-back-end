@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { ProductCategory } from 'src/product-categories/product-category.entity';
 import { PartialBy } from 'src/types';
-import { Category } from '../../categories/entities/category.entity';
-import { FullProduct } from '../types';
+import { FullProduct } from './types';
 
 @Schema()
 export class Product implements FullProduct {
@@ -54,7 +54,11 @@ export class Product implements FullProduct {
 
   @Prop({
     type: Number,
-    max: 100,
+    validate(discount: number) {
+      if (discount > 100) {
+        throw new Error('Discount cannot be bigger than 100%!');
+      }
+    },
   })
   discount: number;
 
@@ -66,7 +70,7 @@ export class Product implements FullProduct {
 
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
-    ref: Category.name,
+    ref: ProductCategory.name,
     validate(categories: string[]) {
       if (categories.length === 0) {
         throw new Error('A product must have at least one category!');

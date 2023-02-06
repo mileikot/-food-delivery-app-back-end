@@ -3,7 +3,7 @@ import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProductsModule } from './products/products.module';
-import { CategoriesModule } from './categories/categories.module';
+import { ProductCategoriesModule } from './product-categories/product-categories.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { CategoriesModule } from './categories/categories.module';
     }),
     ProductsModule,
     UsersModule,
-    CategoriesModule,
+    ProductCategoriesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
