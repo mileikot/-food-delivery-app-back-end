@@ -1,4 +1,4 @@
-import { Category } from 'src/categories/entities/category.entity';
+import { ProductCategory } from 'src/product-categories/product-category.entity';
 
 export interface FullProduct {
   title: string;
@@ -7,7 +7,7 @@ export interface FullProduct {
   image: Buffer;
   rating: number;
   discount: number;
-  categories: string[] | Category[];
+  categories: string[] | ProductCategory[];
 }
 
 export class PopulatedProduct implements FullProduct {
@@ -17,5 +17,5 @@ export class PopulatedProduct implements FullProduct {
   image: Buffer;
   rating: number;
   discount: number;
-  categories: Category[];
+  categories: ProductCategory[];
 }

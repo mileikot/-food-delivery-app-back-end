@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as sharp from 'sharp';
-import { Product, ProductDocument } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Product, ProductDocument } from './product.entity';
 import { ProductNotFoundException } from './exceptions';
 import { PopulatedProduct } from './types';
 
@@ -39,7 +39,7 @@ export class ProductsService {
   async findAll(): Promise<PopulatedProduct[]> {
     const products = await this.productModel
       .find()
-      .populate<PopulatedProduct>('categories')
+      .populate<PopulatedProduct>('categories', 'name slug')
       .exec();
 
     return products;
@@ -48,7 +48,7 @@ export class ProductsService {
   async findOne(id: string): Promise<PopulatedProduct> {
     const product = await this.productModel
       .findOne({ _id: id })
-      .populate<PopulatedProduct>('categories')
+      .populate<PopulatedProduct>('categories', 'name slug')
       .exec();
 
     if (product === null) {
@@ -86,7 +86,7 @@ export class ProductsService {
         },
         { new: true },
       )
-      .populate<PopulatedProduct>('categories')
+      .populate<PopulatedProduct>('categories', 'name slug')
       .exec();
 
     if (updatedProduct === null) {
