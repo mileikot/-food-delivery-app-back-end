@@ -9,18 +9,22 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { CategoriesService } from './categories.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ProductCategoriesService } from './product-categories.service';
+import { CreateProductCategoryDto } from './dto/create-product-category.dto';
+import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
 
-@Controller('categories')
-export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+@Controller('product-categories')
+export class ProductCategoriesController {
+  constructor(
+    private readonly productCategoriesService: ProductCategoriesService,
+  ) {}
 
   @Post()
-  async create(@Body() createCategoryDto: CreateCategoryDto) {
+  async create(@Body() createProductCategoryDto: CreateProductCategoryDto) {
     try {
-      return await this.categoriesService.create(createCategoryDto);
+      return await this.productCategoriesService.create(
+        createProductCategoryDto,
+      );
     } catch (error) {
       throw new HttpException(error, HttpStatus.BAD_REQUEST, {
         cause: error,
@@ -31,7 +35,7 @@ export class CategoriesController {
   @Get()
   async findAll() {
     try {
-      return await this.categoriesService.findAll();
+      return await this.productCategoriesService.findAll();
     } catch (error) {
       throw new HttpException(error, HttpStatus.NOT_FOUND, {
         cause: error,
@@ -42,7 +46,7 @@ export class CategoriesController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
-      return await this.categoriesService.findOne(id);
+      return await this.productCategoriesService.findOne(id);
     } catch (error) {
       throw new HttpException(error.response, HttpStatus.NOT_FOUND, {
         cause: error,
@@ -53,10 +57,13 @@ export class CategoriesController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateProductDto: UpdateCategoryDto,
+    @Body() updateProductCategoryDto: UpdateProductCategoryDto,
   ) {
     try {
-      return await this.categoriesService.update(id, updateProductDto);
+      return await this.productCategoriesService.update(
+        id,
+        updateProductCategoryDto,
+      );
     } catch (error) {
       throw new HttpException(error, HttpStatus.NOT_FOUND, {
         cause: error,
@@ -67,7 +74,7 @@ export class CategoriesController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {
-      await this.categoriesService.remove(id);
+      await this.productCategoriesService.remove(id);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND, {
         cause: error,

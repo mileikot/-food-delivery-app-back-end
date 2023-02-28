@@ -3,9 +3,9 @@ import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProductsModule } from './products/products.module';
+import { ProductCategoriesModule } from './product-categories/product-categories.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { OrdersModule } from './orders/orders.module';
-import { CategoriesModule } from './categories/categories.module';
 import { OrderStatusesModule } from './order-statuses/order-statuses.module';
 import { OrdersController } from './orders/orders.controller';
 
@@ -21,7 +21,7 @@ import { OrdersController } from './orders/orders.controller';
     ProductsModule,
     UsersModule,
     OrdersModule,
-    CategoriesModule,
+    ProductCategoriesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
