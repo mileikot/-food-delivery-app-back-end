@@ -3,7 +3,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from './entities/user.schema';
+import { User, UserDocument } from './entities/user.entity';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,13 +17,25 @@ export class UsersService {
 
     await newUser.save();
 
-    const token = await newUser.generateAuthToken();
+    const tokens = await newUser.generateAuthToken();
 
-    return { newUser, token };
+    return { newUser, tokens };
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async login(
+    loginUserDto: LoginUserDto,
+  ): Promise<{ user: UserDocument; tokens: string[] }> {
+    const user = await this.userModel.findOne({
+      phoneNumber: loginUserDto.phoneNumber,
+    });
+
+    if (user === null) {
+      throw new Error("This Phone number hasn't registered yet");
+    }
+
+    const tokens = await user.generateAuthToken();
+
+    return { user, tokens };
   }
 
   async findOne(id: string) {

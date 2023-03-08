@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   Header,
   Res,
+  Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -41,8 +42,9 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(@Req() req) {
     try {
+      console.log(req.user);
       return await this.productsService.findAll();
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
