@@ -2,19 +2,13 @@ type OrderStatusConstantsModule = typeof import('./orderStatusesConstants');
 
 type OrderStatusKeys = keyof OrderStatusConstantsModule;
 
-export type OrderStatuses =
-  | 'Pending payment'
-  | 'Failed'
-  | 'Processing'
-  | 'Completed'
-  | 'On hold'
-  | 'Canceled';
+export type OrderStatuses = 1 | 2 | 3 | 4 | 5 | 6;
 
 export const orderStatusesMap: Record<OrderStatusKeys, OrderStatuses> = {
-  PENDING_PAYMENT: 'Pending payment',
-  FAILED: 'Failed',
-  PROCESSING: 'Processing',
-  COMPLETED: 'Completed',
-  ON_HOLD: 'On hold',
-  CANCELED: 'Canceled',
+  PENDING_PAYMENT: 1,
+  FAILED: 2,
+  PROCESSING: 3,
+  COMPLETED: 4,
+  ON_HOLD: 5,
+  CANCELED: 6,
 };
