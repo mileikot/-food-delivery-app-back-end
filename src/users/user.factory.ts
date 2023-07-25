@@ -1,7 +1,8 @@
-import { User, UserDocument, UserEntity } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
-import * as jwt from 'jsonwebtoken';
 import { AsyncModelFactory } from '@nestjs/mongoose';
+import * as jwt from 'jsonwebtoken';
+
+import { User, UserDocument, UserEntity } from './entities/user.entity';
 
 export const userFactory: AsyncModelFactory = {
   name: User.name,

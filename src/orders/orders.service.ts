@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order, OrderDocument } from './entities/order.entity';
 import { Model } from 'mongoose';
+
 import { RequestWithUser } from '../types/common';
 import { UserDocument } from '../users/entities/user.entity';
+
+import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
+import { Order, OrderDocument } from './entities/order.entity';
 
 @Injectable()
 export class OrdersService {
@@ -30,6 +32,7 @@ export class OrdersService {
     return `This action returns a #${id} order`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   update(id: number, updateOrderDto: UpdateOrderDto) {
     return `This action updates a #${id} order`;
   }

@@ -1,8 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { ProductCategory } from 'src/product-categories/product-category.entity';
-import { PartialBy } from 'src/types';
+
+import { productStatusesList } from './statuses/hardcoded';
+import { ProductStatuses } from './statuses/productStatuses';
 import { FullProduct } from './types';
+
+import { ProductCategory } from '@/product-categories/product-category.entity';
+import { PartialBy } from '@/types/utils';
 
 @Schema()
 export class Product implements FullProduct {
@@ -21,9 +25,20 @@ export class Product implements FullProduct {
   description: string;
 
   @Prop({
+    type: String,
+    required: true,
+    validate(value: ProductStatuses) {
+      if (!productStatusesList.includes(value)) {
+        throw new Error('No such status exists');
+      }
+    },
+  })
+  status: ProductStatuses;
+
+  @Prop({
     type: Number,
     required: true,
-    validate(value) {
+    validate(value: number) {
       if (value < 0) {
         throw new Error('Price cannot be less than 0');
       }
@@ -34,9 +49,9 @@ export class Product implements FullProduct {
   @Prop({
     type: Number,
     required: true,
-    validate(value) {
+    validate(value: number) {
       if (value < 0) {
-        throw new Error('Price cannot be less than 0');
+        throw new Error('Total price cannot be less than 0');
       }
     },
   })
@@ -44,7 +59,7 @@ export class Product implements FullProduct {
 
   @Prop({
     type: Number,
-    validate(value) {
+    validate(value: number) {
       if (value > 5) {
         throw new Error('Rating cannot be bigger than 5!');
       }

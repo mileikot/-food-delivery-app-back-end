@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
+import { ProductCategoryNotFoundException } from './exceptions';
 import {
   ProductCategory,
   ProductCategoryDocument,
 } from './product-category.entity';
-import { ProductCategoryNotFoundException } from './exceptions';
 
 @Injectable()
 export class ProductCategoriesService {

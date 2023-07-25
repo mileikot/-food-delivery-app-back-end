@@ -1,12 +1,14 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
 import { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserJwtPayload } from './types';
-import { User, UserDocument } from '../users/entities/user.entity';
-import { ConfigService } from '@nestjs/config';
+
 import { RequestWithUser } from '../types/common';
+import { User, UserDocument } from '../users/entities/user.entity';
+
+import { UserJwtPayload } from './types';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
