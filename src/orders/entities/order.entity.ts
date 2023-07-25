@@ -35,7 +35,11 @@ export class Order {
   })
   date: Date;
 
-  // products:
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    required: true,
+  })
+  products: mongoose.Schema.Types.ObjectId[];
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
