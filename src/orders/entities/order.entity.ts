@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { orderStatusesMap, OrderStatuses } from '../types/types';
+
+import { OrderStatuses, orderStatusesMap } from '../types/types';
 
 @Schema()
 export class Order {

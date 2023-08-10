@@ -1,5 +1,4 @@
-export type ProductStatusesModule =
-  typeof import('../constants/productStatuses');
+export type ProductStatusesModule = typeof import('./productStatusConstants');
 
 export type ProductStatusesKeys = keyof ProductStatusesModule;
 

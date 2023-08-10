@@ -1,6 +1,8 @@
 import { ProductCategory } from 'src/product-categories/product-category.entity';
 
-export interface FullProduct {
+import { ProductStatuses } from './statuses/productStatuses';
+
+export abstract class FullProduct {
   title: string;
   description: string;
   price: number;
@@ -8,14 +10,15 @@ export interface FullProduct {
   rating: number;
   discount: number;
   categories: string[] | ProductCategory[];
+  status: ProductStatuses;
 }
 
-export class PopulatedProduct implements FullProduct {
-  title: string;
-  description: string;
-  price: number;
-  image: Buffer;
-  rating: number;
-  discount: number;
+export abstract class PopulatedProduct extends FullProduct {
+  // title: string;
+  // description: string;
+  // price: number;
+  // image: Buffer;
+  // rating: number;
+  // discount: number;
   categories: ProductCategory[];
 }

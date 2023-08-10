@@ -1,3 +1,5 @@
+import { ProductStatuses } from '../statuses/productStatuses';
+
 export class CreateProductDto {
   readonly title: string;
   readonly description: string;
@@ -6,4 +8,5 @@ export class CreateProductDto {
   readonly rating?: number;
   readonly discount?: number;
   readonly categories: string;
+  readonly status: ProductStatuses;
 }

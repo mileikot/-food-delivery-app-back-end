@@ -1,23 +1,24 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Header,
   HttpException,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Res,
   UploadedFile,
   UseInterceptors,
-  Header,
-  Res,
-  Req,
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { ProductsService } from './products.service';
 
 @Controller('products')
 export class ProductsController {
@@ -77,7 +78,6 @@ export class ProductsController {
         image: image?.buffer,
       });
     } catch (error) {
-      console.log(error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
         cause: error,
       });

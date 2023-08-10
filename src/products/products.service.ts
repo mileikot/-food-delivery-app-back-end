@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as sharp from 'sharp';
+
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product, ProductDocument } from './product.entity';
 import { ProductNotFoundException } from './exceptions';
+import { Product, ProductDocument } from './product.entity';
 import { PopulatedProduct } from './types';
 
 @Injectable()

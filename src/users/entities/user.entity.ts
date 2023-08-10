@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import validator from 'validator';
 import { HydratedDocument } from 'mongoose';
+import validator from 'validator';
+
 import { Order, OrderDocument } from '../../orders/entities/order.entity';
 import { PartialBy } from '../../types/utils';
 
