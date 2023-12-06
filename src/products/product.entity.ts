@@ -25,7 +25,7 @@ export class Product implements FullProduct {
   description: string;
 
   @Prop({
-    type: String,
+    type: Number,
     required: true,
     validate(value: ProductStatuses) {
       if (!productStatusesList.includes(value)) {
@@ -78,10 +78,12 @@ export class Product implements FullProduct {
   discount: number;
 
   @Prop({
-    type: Buffer,
+    type: String,
     required: true,
   })
-  image: Buffer;
+  imageName: string;
+
+  imageUrl: string;
 
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
@@ -100,13 +102,9 @@ export type ProductDocument = HydratedDocument<Product>;
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
 ProductSchema.method<ProductDocument>('toJSON', function () {
-  const product = this.toObject() as PartialBy<
-    ProductDocument,
-    'image' | '__v'
-  >;
+  const product = this.toObject() as PartialBy<ProductDocument, '__v'>;
 
   delete product.__v;
-  delete product.image;
 
   return product;
 });

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import * as crypto from 'crypto';
+import { Model, Types } from 'mongoose';
 import * as sharp from 'sharp';
 
 import { CreateProductDto } from './dto/create-product.dto';
@@ -9,118 +10,193 @@ import { ProductNotFoundException } from './exceptions';
 import { Product, ProductDocument } from './product.entity';
 import { PopulatedProduct } from './types';
 
+import { FilesBucketService } from '@/modules/aws';
+
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
+    private readonly filesBucketService: FilesBucketService,
   ) {}
 
-  async create(createProductDto: CreateProductDto) {
-    const { image, categories, price, discount, ...rest } = createProductDto;
+  async create(createProductDto: CreateProductDto, image: Buffer) {
+    const { categories, price, discount, ...rest } = createProductDto;
 
     const formattedImage = await this.formatImage(image);
 
     const total: number = discount
-      ? this.calculateTotal(price, discount)
+      ? this.calculateTotalPrice(price, discount)
       : price;
 
-    const createProduct = new this.productModel({
+    const product = new this.productModel({
       ...rest,
       discount,
       price,
       totalPrice: total,
-      image: formattedImage,
-      categories: JSON.parse(categories),
+      categories: categories,
     });
 
-    return createProduct.save();
+    const productId = product._id;
+
+    const { imageName } = await this.saveImage(productId, formattedImage);
+
+    product.imageName = imageName;
+
+    const savedProduct = await product.save();
+
+    const imageUrl = await this.getProductImageUrl(productId, imageName);
+
+    savedProduct.imageUrl = imageUrl;
+
+    return savedProduct;
   }
 
   async findAll(): Promise<PopulatedProduct[]> {
     const products = await this.productModel
       .find()
       .populate<PopulatedProduct>('categories', 'name slug')
+      .lean()
       .exec();
+
+    for (const product of products) {
+      const imageUrl = await this.getProductImageUrl(
+        product._id,
+        product.imageName,
+      );
+
+      product.imageUrl = imageUrl;
+    }
 
     return products;
   }
 
-  async findOne(id: string): Promise<PopulatedProduct> {
+  async findOne(id: Types.ObjectId): Promise<PopulatedProduct> {
     const product = await this.productModel
       .findOne({ _id: id })
       .populate<PopulatedProduct>('categories', 'name slug')
+      .lean()
       .exec();
 
     if (product === null) {
       throw new ProductNotFoundException(id);
     }
+
+    const imageUrl = await this.getProductImageUrl(
+      product._id,
+      product.imageName,
+    );
+
+    product.imageUrl = imageUrl;
 
     return product;
   }
 
   async update(
-    id: string,
+    id: Types.ObjectId,
     updateProductDto: UpdateProductDto,
+    image?: Buffer,
   ): Promise<PopulatedProduct> {
-    const { price, discount, image, categories, ...rest } = updateProductDto;
+    const { price, discount, categories, ...rest } = updateProductDto;
 
-    const formattedImage = image ? await this.formatImage(image) : undefined;
+    const formattedImage = image ? await this.formatImage(image) : null;
 
-    const formattedCategories = categories ? JSON.parse(categories) : [];
+    const formattedCategories = categories ? categories : [];
 
     const total =
-      price && discount ? this.calculateTotal(price, discount) : price;
+      price && discount ? this.calculateTotalPrice(price, discount) : price;
 
-    const updatedProduct = await this.productModel
-      .findOneAndUpdate(
-        { _id: id },
-        {
-          $set: {
-            ...rest,
-            price,
-            totalPrice: total,
-            image: formattedImage,
-            categories: formattedCategories,
-            discount: Number(discount) === 0 ? null : discount,
-          },
-        },
-        { new: true },
-      )
-      .populate<PopulatedProduct>('categories', 'name slug')
-      .exec();
-
-    if (updatedProduct === null) {
-      throw new ProductNotFoundException(id);
-    }
-
-    return updatedProduct;
-  }
-
-  async remove(id: string): Promise<Product> {
-    const deletedProduct = await this.productModel
-      .findByIdAndRemove({ _id: id })
-      .exec();
-
-    if (deletedProduct === null) {
-      throw new ProductNotFoundException(id);
-    }
-
-    return deletedProduct;
-  }
-
-  async getProductImage(id: string): Promise<Buffer> {
-    const product = await this.productModel.findOne({ _id: id }).exec();
+    const product = await this.productModel
+      .findById(id)
+      .populate<PopulatedProduct>('categories', 'name slug');
 
     if (product === null) {
       throw new ProductNotFoundException(id);
     }
 
-    return product.image;
+    const oldImageName = product.imageName;
+
+    if (formattedImage) {
+      const { imageName } = await this.saveImage(
+        product._id,
+        formattedImage,
+        oldImageName,
+      );
+
+      const newImageUrl = await this.getProductImageUrl(product._id, imageName);
+
+      product.imageUrl = newImageUrl;
+    }
+
+    product
+      .updateOne(
+        {
+          ...rest,
+          price,
+          totalPrice: total,
+          categories: formattedCategories,
+          discount: Number(discount) === 0 ? null : discount,
+        },
+        { new: true },
+      )
+      .exec();
+
+    return product;
   }
 
-  calculateTotal(price: number, discount: number): number {
+  async remove(id: Types.ObjectId): Promise<Product> {
+    const toBeDeletedProduct = await this.productModel.findById(id).exec();
+
+    if (toBeDeletedProduct === null) {
+      throw new ProductNotFoundException(id);
+    }
+
+    await this.deleteProductImages(id);
+
+    await toBeDeletedProduct.deleteOne();
+
+    return toBeDeletedProduct;
+  }
+
+  async saveImage(
+    productId: Types.ObjectId,
+    image: Buffer,
+    oldImageName?: string,
+  ) {
+    let imageName: string | null = null;
+
+    if (oldImageName) {
+      imageName = oldImageName;
+    } else {
+      imageName = this.randomImageName();
+    }
+
+    await this.filesBucketService.put({
+      Key: `${productId}/${imageName}`,
+      Body: image,
+    });
+
+    return { imageName };
+  }
+
+  deleteProductImages(productId: Types.ObjectId) {
+    return this.filesBucketService.deleteMultiple({
+      Prefix: `${productId}`,
+    });
+  }
+
+  getProductImageUrl(id: Types.ObjectId, name: string): Promise<string> {
+    return this.filesBucketService.getSignedUrl({
+      Key: `${id}/${name}`,
+    });
+  }
+
+  calculateTotalPrice(price: number, discount: number): number {
     return Number((price - price * (discount / 100)).toFixed(1));
+  }
+
+  randomImageName(bytes: number = 32) {
+    return crypto.randomBytes(bytes).toString('hex');
   }
 
   async formatImage(image: Buffer): Promise<Buffer> {
