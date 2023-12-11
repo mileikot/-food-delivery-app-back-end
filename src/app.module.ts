@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { AuthMiddleware } from './middleware/auth.middleware';
+import { FilesBucketModule } from './modules/aws';
 import { OrdersController } from './orders/orders.controller';
 import { OrdersModule } from './orders/orders.module';
 import { ProductCategoriesModule } from './product-categories/product-categories.module';
@@ -14,7 +15,7 @@ import { UsersModule } from './users/users.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_CONNECT_URL'),
+        uri: configService.get('MONGODB_CONNECT_URL'),
       }),
       inject: [ConfigService],
     }),
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    FilesBucketModule,
   ],
 })
 export class AppModule implements NestModule {

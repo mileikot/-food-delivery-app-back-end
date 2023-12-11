@@ -6,7 +6,7 @@ export abstract class FullProduct {
   title: string;
   description: string;
   price: number;
-  image: Buffer;
+  imageName: string;
   rating: number;
   discount: number;
   categories: string[] | ProductCategory[];
@@ -14,11 +14,5 @@ export abstract class FullProduct {
 }
 
 export abstract class PopulatedProduct extends FullProduct {
-  // title: string;
-  // description: string;
-  // price: number;
-  // image: Buffer;
-  // rating: number;
-  // discount: number;
   categories: ProductCategory[];
 }
