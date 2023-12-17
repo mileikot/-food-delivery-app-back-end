@@ -22,6 +22,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { MAX_IMAGE_SIZE } from './constants';
 import { ProductsService } from './products.service';
 
+import { TransformFormDataPipe } from '@/pipes';
+
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -42,7 +44,7 @@ export class ProductsController {
       }),
     )
     image: Express.Multer.File,
-    @Body() createProductDto: CreateProductDto,
+    @Body(new TransformFormDataPipe()) createProductDto: CreateProductDto,
   ) {
     try {
       return await this.productsService.create(createProductDto, image.buffer);
@@ -80,7 +82,8 @@ export class ProductsController {
   async update(
     @Param('id') id: Types.ObjectId,
     @UploadedFile() image: Express.Multer.File,
-    @Body() updateProductDto: UpdateProductDto,
+    @Body(new TransformFormDataPipe())
+    updateProductDto: UpdateProductDto,
   ) {
     try {
       return await this.productsService.update(

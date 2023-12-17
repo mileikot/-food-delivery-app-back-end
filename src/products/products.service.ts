@@ -97,6 +97,14 @@ export class ProductsService {
     updateProductDto: UpdateProductDto,
     image?: Buffer,
   ): Promise<PopulatedProduct> {
+    const product = await this.productModel
+      .findById(id)
+      .populate<PopulatedProduct>('categories', 'name slug');
+
+    if (product === null) {
+      throw new ProductNotFoundException(id);
+    }
+
     const { price, discount, categories, ...rest } = updateProductDto;
 
     const formattedImage = image ? await this.formatImage(image) : null;
@@ -105,14 +113,6 @@ export class ProductsService {
 
     const total =
       price && discount ? this.calculateTotalPrice(price, discount) : price;
-
-    const product = await this.productModel
-      .findById(id)
-      .populate<PopulatedProduct>('categories', 'name slug');
-
-    if (product === null) {
-      throw new ProductNotFoundException(id);
-    }
 
     const oldImageName = product.imageName;
 
@@ -135,7 +135,7 @@ export class ProductsService {
           price,
           totalPrice: total,
           categories: formattedCategories,
-          discount: Number(discount) === 0 ? null : discount,
+          discount,
         },
         { new: true },
       )
