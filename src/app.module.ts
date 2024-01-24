@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { CheckoutModule } from './checkout/checkout.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { FilesBucketModule } from './modules/aws';
 import { OrdersController } from './orders/orders.controller';
@@ -27,6 +28,7 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
     }),
     FilesBucketModule,
+    CheckoutModule,
   ],
 })
 export class AppModule implements NestModule {

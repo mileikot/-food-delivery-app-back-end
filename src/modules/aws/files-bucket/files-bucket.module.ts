@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { FilesBucketService } from './files-bucket.service';
+
 import { S3 } from '@/lib/aws';
 
 @Module({
@@ -17,8 +19,9 @@ import { S3 } from '@/lib/aws';
         }),
       inject: [ConfigService],
     },
+    FilesBucketService,
   ],
   imports: [ConfigModule],
-  exports: [S3],
+  exports: [FilesBucketService],
 })
 export class FilesBucketModule {}
