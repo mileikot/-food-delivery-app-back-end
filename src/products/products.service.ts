@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as crypto from 'crypto';
-import { Model, Types } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import * as sharp from 'sharp';
 
 import { CreateProductDto } from './dto/create-product.dto';
-import { FullProductDto } from './dto/full-product.dto';
 import { PopulatedProductDto } from './dto/populated-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductNotFoundException } from './exceptions';
@@ -53,23 +52,16 @@ export class ProductsService {
     return savedProduct;
   }
 
-  async findAll(): Promise<PopulatedProductDto[]> {
+  async findAll(
+    filter?: FilterQuery<ProductDocument>,
+  ): Promise<PopulatedProductDto[]> {
     const products = await this.productModel
-      .find()
+      .find(filter ?? {})
       .populate<PopulatedProductDto>('categories', 'name slug')
       .lean()
       .exec();
 
-    for (const product of products) {
-      const imageUrl = await this.getProductImageUrl(
-        product._id,
-        product.imageName,
-      );
-
-      product.imageUrl = imageUrl;
-    }
-
-    return products;
+    return this.assignImageURLToProducts(products);
   }
 
   async findOne(id: Types.ObjectId): Promise<PopulatedProductDto> {
@@ -159,9 +151,9 @@ export class ProductsService {
     return toBeDeletedProduct;
   }
 
-  async assignImageURLToProducts(
-    products: FullProductDto[],
-  ): Promise<FullProductDto[]> {
+  private async assignImageURLToProducts(
+    products: PopulatedProductDto[],
+  ): Promise<PopulatedProductDto[]> {
     for (const product of products) {
       const imageUrl = await this.getProductImageUrl(
         product._id,
