@@ -14,6 +14,6 @@ import { FilesBucketModule } from '@/modules/aws';
   ],
   controllers: [ProductsController],
   providers: [ProductsService],
-  exports: [ProductsService, MongooseModule],
+  exports: [ProductsService],
 })
 export class ProductsModule {}
