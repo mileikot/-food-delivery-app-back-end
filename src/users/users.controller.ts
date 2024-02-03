@@ -10,7 +10,6 @@ import {
   Post,
 } from '@nestjs/common';
 
-import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -18,15 +17,6 @@ import { UsersService } from './users.service';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    try {
-      return await this.usersService.create(createUserDto);
-    } catch (e) {
-      throw new HttpException(e.message, HttpStatus.NOT_FOUND);
-    }
-  }
 
   @Post('/login')
   async login(@Body() loginUserDto: LoginUserDto) {

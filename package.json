@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.386.0",
+    "@aws-sdk/client-sns": "^3.490.0",
     "@aws-sdk/s3-request-presigner": "^3.386.0",
     "@nestjs/common": "^10.1.2",
     "@nestjs/config": "^3.0.0",
@@ -32,6 +33,7 @@
     "@nestjs/platform-express": "^10.1.2",
     "@nestjs/swagger": "^7.1.7",
     "@types/jsonwebtoken": "^9.0.2",
+    "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "jsonwebtoken": "^9.0.1",

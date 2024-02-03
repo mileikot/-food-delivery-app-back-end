@@ -9,6 +9,7 @@ import { OrdersModule } from './orders/orders.module';
 import { ProductCategoriesModule } from './product-categories/product-categories.module';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
+import { verficationPhoneNumberModule } from './verification-phone-numbers/verification-phone-numbers.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
     }),
     FilesBucketModule,
+    verficationPhoneNumberModule,
   ],
 })
 export class AppModule implements NestModule {

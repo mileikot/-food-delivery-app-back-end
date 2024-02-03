@@ -5,7 +5,7 @@ import { Product, ProductSchema } from './product.entity';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 
-import { FilesBucketModule, FilesBucketService } from '@/modules/aws';
+import { FilesBucketModule } from '@/modules/aws';
 
 @Module({
   imports: [
@@ -13,6 +13,6 @@ import { FilesBucketModule, FilesBucketService } from '@/modules/aws';
     FilesBucketModule,
   ],
   controllers: [ProductsController],
-  providers: [ProductsService, FilesBucketService],
+  providers: [ProductsService],
 })
 export class ProductsModule {}
