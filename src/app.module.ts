@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { CheckoutModule } from './checkout/checkout.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { FilesBucketModule } from './modules/aws';
 import { OrdersController } from './orders/orders.controller';
@@ -10,6 +11,7 @@ import { ProductCategoriesModule } from './product-categories/product-categories
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
 import { verficationPhoneNumberModule } from './verification-phone-numbers/verification-phone-numbers.module';
+import { SearchModule } from './routes';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { verficationPhoneNumberModule } from './verification-phone-numbers/verif
       isGlobal: true,
     }),
     FilesBucketModule,
+    CheckoutModule,
+    SearchModule,
     verficationPhoneNumberModule,
   ],
 })

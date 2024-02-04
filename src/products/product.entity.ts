@@ -1,15 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
 
+import { FullProductDto } from './dto/full-product.dto';
 import { productStatusesList } from './statuses/hardcoded';
 import { ProductStatuses } from './statuses/productStatuses';
-import { FullProduct } from './types';
 
 import { ProductCategory } from '@/product-categories/product-category.entity';
 import { PartialBy } from '@/types/utils';
 
 @Schema()
-export class Product implements FullProduct {
+export class Product implements FullProductDto {
+  _id: Types.ObjectId;
+
   @Prop({
     type: String,
     required: true,

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as crypto from 'crypto';
-import { Model, Types } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import * as sharp from 'sharp';
 
 import { CreateProductDto } from './dto/create-product.dto';
+import { PopulatedProductDto } from './dto/populated-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductNotFoundException } from './exceptions';
 import { Product, ProductDocument } from './product.entity';
-import { PopulatedProduct } from './types';
 
 import { FilesBucketService } from '@/modules/aws';
 
@@ -52,29 +52,22 @@ export class ProductsService {
     return savedProduct;
   }
 
-  async findAll(): Promise<PopulatedProduct[]> {
+  async findAll(
+    filter?: FilterQuery<ProductDocument>,
+  ): Promise<PopulatedProductDto[]> {
     const products = await this.productModel
-      .find()
-      .populate<PopulatedProduct>('categories', 'name slug')
+      .find(filter ?? {})
+      .populate<PopulatedProductDto>('categories', 'name slug')
       .lean()
       .exec();
 
-    for (const product of products) {
-      const imageUrl = await this.getProductImageUrl(
-        product._id,
-        product.imageName,
-      );
-
-      product.imageUrl = imageUrl;
-    }
-
-    return products;
+    return this.assignImageURLToProducts(products);
   }
 
-  async findOne(id: Types.ObjectId): Promise<PopulatedProduct> {
+  async findOne(id: Types.ObjectId): Promise<PopulatedProductDto> {
     const product = await this.productModel
       .findOne({ _id: id })
-      .populate<PopulatedProduct>('categories', 'name slug')
+      .populate<PopulatedProductDto>('categories', 'name slug')
       .lean()
       .exec();
 
@@ -96,7 +89,15 @@ export class ProductsService {
     id: Types.ObjectId,
     updateProductDto: UpdateProductDto,
     image?: Buffer,
-  ): Promise<PopulatedProduct> {
+  ): Promise<PopulatedProductDto> {
+    const product = await this.productModel
+      .findById(id)
+      .populate<PopulatedProductDto>('categories', 'name slug');
+
+    if (product === null) {
+      throw new ProductNotFoundException(id);
+    }
+
     const { price, discount, categories, ...rest } = updateProductDto;
 
     const formattedImage = image ? await this.formatImage(image) : null;
@@ -105,14 +106,6 @@ export class ProductsService {
 
     const total =
       price && discount ? this.calculateTotalPrice(price, discount) : price;
-
-    const product = await this.productModel
-      .findById(id)
-      .populate<PopulatedProduct>('categories', 'name slug');
-
-    if (product === null) {
-      throw new ProductNotFoundException(id);
-    }
 
     const oldImageName = product.imageName;
 
@@ -135,7 +128,7 @@ export class ProductsService {
           price,
           totalPrice: total,
           categories: formattedCategories,
-          discount: Number(discount) === 0 ? null : discount,
+          discount,
         },
         { new: true },
       )
@@ -158,7 +151,22 @@ export class ProductsService {
     return toBeDeletedProduct;
   }
 
-  async saveImage(
+  private async assignImageURLToProducts(
+    products: PopulatedProductDto[],
+  ): Promise<PopulatedProductDto[]> {
+    for (const product of products) {
+      const imageUrl = await this.getProductImageUrl(
+        product._id,
+        product.imageName,
+      );
+
+      product.imageUrl = imageUrl;
+    }
+
+    return products;
+  }
+
+  private async saveImage(
     productId: Types.ObjectId,
     image: Buffer,
     oldImageName?: string,
@@ -179,27 +187,30 @@ export class ProductsService {
     return { imageName };
   }
 
-  deleteProductImages(productId: Types.ObjectId) {
+  private deleteProductImages(productId: Types.ObjectId) {
     return this.filesBucketService.deleteMultiple({
       Prefix: `${productId}`,
     });
   }
 
-  getProductImageUrl(id: Types.ObjectId, name: string): Promise<string> {
+  private getProductImageUrl(
+    id: Types.ObjectId,
+    name: string,
+  ): Promise<string> {
     return this.filesBucketService.getSignedUrl({
       Key: `${id}/${name}`,
     });
   }
 
-  calculateTotalPrice(price: number, discount: number): number {
+  private calculateTotalPrice(price: number, discount: number): number {
     return Number((price - price * (discount / 100)).toFixed(1));
   }
 
-  randomImageName(bytes: number = 32) {
+  private randomImageName(bytes: number = 32) {
     return crypto.randomBytes(bytes).toString('hex');
   }
 
-  async formatImage(image: Buffer): Promise<Buffer> {
+  private async formatImage(image: Buffer): Promise<Buffer> {
     return await sharp(image).jpeg().resize(600, 600).toBuffer();
   }
 }
