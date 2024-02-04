@@ -10,6 +10,7 @@ import { OrdersModule } from './orders/orders.module';
 import { ProductCategoriesModule } from './product-categories/product-categories.module';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
+import { VerficationPhoneNumberModule } from './verification-phone-numbers/verification-phone-numbers.module';
 import { SearchModule } from './routes';
 
 @Module({
@@ -31,6 +32,7 @@ import { SearchModule } from './routes';
     FilesBucketModule,
     CheckoutModule,
     SearchModule,
+    VerficationPhoneNumberModule,
   ],
 })
 export class AppModule implements NestModule {

@@ -7,10 +7,10 @@ import { PartialBy } from '../../types/utils';
 
 @Schema()
 export class User {
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   firstName: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   lastName: string;
 
   @Prop({

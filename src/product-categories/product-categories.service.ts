@@ -57,7 +57,7 @@ export class ProductCategoriesService {
     }
   }
 
-  async remove(id: string): Promise<ProductCategory> {
+  async remove(id: string) {
     const productCategory = await this.productCategoryModel
       .findByIdAndDelete({ _id: id })
       .exec();
