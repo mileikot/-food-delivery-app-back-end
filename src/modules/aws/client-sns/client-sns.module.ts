@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { ClientSnsService } from '@/modules/aws/client-sns/client-sns.service';
+import { ClientSnsService } from './client-sns.service';
 
 @Module({
   imports: [ConfigModule],

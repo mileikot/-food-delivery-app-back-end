@@ -1,2 +1,2 @@
-// export * from './client-sns.module';
-// export * from './client-sns.service';
+export * from './client-sns.module';
+export * from './client-sns.service';

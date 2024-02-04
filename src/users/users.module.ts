@@ -8,7 +8,7 @@ import { UsersService } from './users.service';
 import {
   PhoneNumberVerification,
   PhoneNumberVerificationSchema,
-} from '@/verification-phone-numbers/entities/phoneNumber.entity';
+} from '@/verification-phone-numbers/entities/phone-number-verification.entity';
 
 @Module({
   imports: [

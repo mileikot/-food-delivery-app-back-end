@@ -10,7 +10,7 @@ import { CreateVerificationCodeDto } from './dto/create-verification-code.dto';
 import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
 import { VerficationPhoneNumbersService } from './verification-phone-numbers.service';
 
-import { ClientSnsService } from '@/modules/aws/client-sns/client-sns.service';
+import { ClientSnsService } from '@/modules/aws/client-sns';
 import { UsersService } from '@/users/users.service';
 
 @Controller('verficationPhoneNumbers')

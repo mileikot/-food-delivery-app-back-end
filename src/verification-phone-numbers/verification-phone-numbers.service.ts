@@ -9,7 +9,8 @@ import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
 import {
   PhoneNumberVerification,
   PhoneNumberVerificationDocument,
-} from './entities/phoneNumber.entity';
+} from './entities/phone-number-verification.entity';
+import { BYTES_IN_ONE_SYMBOL, MAX_CODE_SYMBOLS } from './constants';
 
 @Injectable()
 export class VerficationPhoneNumbersService {
@@ -21,10 +22,15 @@ export class VerficationPhoneNumbersService {
   async createVerificationCode(
     createVerificationCodeDto: CreateVerificationCodeDto,
   ): Promise<string> {
-    const randomBytes = crypto.randomBytes(Math.ceil(6 * 0.75));
-    const code = randomBytes.toString('base64').slice(0, 6).toUpperCase();
+    const randomBytes = crypto.randomBytes(
+      Math.ceil(MAX_CODE_SYMBOLS * BYTES_IN_ONE_SYMBOL),
+    );
+    const code = randomBytes
+      .toString('base64')
+      .slice(0, MAX_CODE_SYMBOLS)
+      .toUpperCase();
 
-    const hashedCode = await bcrypt.hash(code, 10);
+    const hashedCode = await bcrypt.hash(code);
 
     const { phoneNumber } = createVerificationCodeDto;
 
