@@ -30,7 +30,7 @@ export class VerficationPhoneNumbersService {
       .slice(0, MAX_CODE_SYMBOLS)
       .toUpperCase();
 
-    const hashedCode = await bcrypt.hash(code);
+    const hashedCode = await bcrypt.hash(code, 10);
 
     const { phoneNumber } = createVerificationCodeDto;
 

@@ -1,3 +1,3 @@
-export type CreateVerificationCodeDto = {
+export class CreateVerificationCodeDto {
   phoneNumber: string;
-};
+}

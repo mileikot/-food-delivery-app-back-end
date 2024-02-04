@@ -25,4 +25,4 @@ import {
   controllers: [VerficationPhoneNumbersController],
   providers: [VerficationPhoneNumbersService],
 })
-export class verficationPhoneNumberModule {}
+export class VerficationPhoneNumberModule {}

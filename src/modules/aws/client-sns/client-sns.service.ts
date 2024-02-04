@@ -1,20 +1,9 @@
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ClientSnsService {
-  private client: SNSClient;
-
-  constructor(private configService: ConfigService) {
-    this.client = new SNSClient({
-      credentials: {
-        accessKeyId: this.configService.get('ACCESS_KEY')!,
-        secretAccessKey: this.configService.get('SECRET_ACCESS_KEY')!,
-      },
-      region: this.configService.get('BUCKET_REGION'),
-    });
-  }
+  constructor(private snsClient: SNSClient) {}
 
   sendSms({ phoneNumber }: { phoneNumber: string }, code: string) {
     const command = new PublishCommand({
@@ -22,6 +11,6 @@ export class ClientSnsService {
       PhoneNumber: phoneNumber,
     });
 
-    return this.client.send(command);
+    return this.snsClient.send(command);
   }
 }
