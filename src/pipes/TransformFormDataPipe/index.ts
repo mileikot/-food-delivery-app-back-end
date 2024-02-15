@@ -1,6 +1,8 @@
 import {
   ArgumentMetadata,
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   PipeTransform,
   Type,
@@ -15,11 +17,7 @@ export class TransformFormDataPipe implements PipeTransform<any> {
       return value;
     }
 
-    const transformed = Object.keys(value).reduce((acc, key) => {
-      acc[key] = JSON.parse(value[key]);
-
-      return acc;
-    }, {});
+    const transformed = this.parseValue(value);
 
     const object = plainToInstance(metatype, transformed);
     const errors = await validate(object);
@@ -28,10 +26,25 @@ export class TransformFormDataPipe implements PipeTransform<any> {
       const errorList = errors.map((error) =>
         error.toString(false, true, '', true),
       );
+
       throw new BadRequestException(errorList);
     }
 
     return object;
+  }
+
+  private parseValue(value: any) {
+    try {
+      return Object.keys(value).reduce((acc, key) => {
+        acc[key] = JSON.parse(value[key]);
+
+        return acc;
+      }, {});
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
+        cause: error,
+      });
+    }
   }
 
   private toValidate(metatype: Type): boolean {

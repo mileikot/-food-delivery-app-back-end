@@ -1,26 +1,32 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
 import { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { Model } from 'mongoose';
+import { ArrayContains } from 'typeorm';
 
 import { RequestWithUser } from '../types/common';
-import { User, UserDocument } from '../users/entities/user.entity';
 
 import { UserJwtPayload } from './types';
+
+import { UserNotFoundException } from '@/routes/users/exceptions';
+import { UsersService } from '@/routes/users/users.service';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly usersService: UsersService,
     readonly configService: ConfigService,
   ) {}
 
   async use(req: RequestWithUser, _: Response, next: NextFunction) {
-    const token = req.header('Authorization')!.replace('Bearer ', '');
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
     if (!token) {
-      throw new Error();
+      throw new UnauthorizedException();
     }
 
     const decoded = jwt.verify(
@@ -28,17 +34,17 @@ export class AuthMiddleware implements NestMiddleware {
       this.configService.get('JWT_SECRET') as jwt.Secret,
     ) as UserJwtPayload;
 
-    const user = await this.userModel.findOne({
-      _id: decoded._id,
-      tokens: token,
+    const user = await this.usersService.findOne({
+      where: { id: decoded.id, tokens: ArrayContains([token]) },
     });
 
     if (!user) {
-      throw new Error();
+      throw new UserNotFoundException();
     }
 
     req.token = token;
     req.user = user;
+
     next();
   }
 }

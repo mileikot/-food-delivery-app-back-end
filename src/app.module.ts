@@ -1,34 +1,39 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CheckoutModule } from './checkout/checkout.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { FilesBucketModule } from './modules/aws';
-import { OrdersController } from './orders/orders.controller';
-import { OrdersModule } from './orders/orders.module';
-import { ProductCategoriesModule } from './product-categories/product-categories.module';
-import { ProductsModule } from './products/products.module';
-import { UsersModule } from './users/users.module';
-import { VerficationPhoneNumberModule } from './verification-phone-numbers/verification-phone-numbers.module';
-import { SearchModule } from './routes';
+import { CheckoutModule } from './routes/checkout/checkout.module';
+import { OrdersController } from './routes/orders/orders.controller';
+import { OrdersModule } from './routes/orders/orders.module';
+import { ProductsModule } from './routes/products/products.module';
+import { SearchModule } from './routes/search/search.module';
+import { UsersModule } from './routes/users/users.module';
+import { VerficationPhoneNumberModule } from './routes/verification-phone-numbers/verification-phone-numbers.module';
 
 @Module({
   imports: [
-    MongooseModule.forRootAsync({
+    TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get('MONGODB_CONNECT_URL'),
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('HOST'),
+        port: +configService.get('PORT'),
+        username: configService.get('USERNAME'),
+        password: configService.get('PASSWORD'),
+        database: configService.get('DATABASE'),
+        synchronize: true,
+        autoLoadEntities: true,
       }),
       inject: [ConfigService],
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
     ProductsModule,
     UsersModule,
     OrdersModule,
-    ProductCategoriesModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
     FilesBucketModule,
     CheckoutModule,
     SearchModule,
