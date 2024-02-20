@@ -1,19 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { ILike } from 'typeorm';
+
+import { Product } from '../products/product.entity';
+import { ProductsService } from '../products/products.service';
 
 import { SearchDto } from './dto/search.dto';
-
-import { PopulatedProductDto } from '@/products/dto/populated-product.dto';
-import { ProductsService } from '@/products/products.service';
 
 @Injectable()
 export class SearchService {
   constructor(private readonly productService: ProductsService) {}
 
-  async search(searchDto: SearchDto): Promise<PopulatedProductDto[]> {
+  async search(searchDto: SearchDto): Promise<Product[]> {
     const { query } = searchDto;
 
     return this.productService.findAll({
-      title: { $regex: query, $options: 'i' },
+      where: { title: ILike(`%${query}%`) },
     });
   }
 }

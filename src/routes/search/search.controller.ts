@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 
 import { SearchDto } from './dto/search.dto';
 import { SearchService } from './search.service';
@@ -15,12 +9,6 @@ export class SearchController {
 
   @Get()
   async search(@Query() searchDto: SearchDto) {
-    try {
-      return await this.searchService.search(searchDto);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST, {
-        cause: error,
-      });
-    }
+    return await this.searchService.search(searchDto);
   }
 }

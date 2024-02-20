@@ -1,10 +1,11 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import { json, urlencoded } from 'express';
 
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './filters';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -13,6 +14,10 @@ async function bootstrap() {
 
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
+
+  const httpAdapter = app.get(HttpAdapterHost);
+
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
