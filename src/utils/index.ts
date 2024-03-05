@@ -25,3 +25,22 @@ export const createTrueBasedMap = <T extends number | string | object>(
     return accumulator;
   }, {});
 };
+
+/**
+ * Deletes specified keys from the given object
+ * @param obj An object from which the fields will be deleted
+ * @param fields A list of fields to delete
+ * @returns A copy of the initial object without deleted fields
+ */
+export const deleteProperties = <T extends object>(
+  obj: T,
+  fields: (keyof T)[],
+) => {
+  const copyObj = { ...obj };
+
+  for (let i = 0; i < fields.length; i++) {
+    delete copyObj[fields[i]];
+  }
+
+  return copyObj;
+};

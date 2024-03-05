@@ -1,4 +1,4 @@
-import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 
 import { CreateVerificationCodeDto } from './dto/create-verification-code.dto';
 import { VerifyPhoneNumberDto } from './dto/verify-phone-number.dto';
@@ -17,7 +17,7 @@ export class VerficationPhoneNumbersController {
 
   @Post('/createVerificationCode')
   async createVerificationCode(
-    @Body(new ValidationPipe())
+    @Body()
     createVerificationCodeDto: CreateVerificationCodeDto,
   ) {
     const code =
@@ -25,13 +25,11 @@ export class VerficationPhoneNumbersController {
         createVerificationCodeDto,
       );
 
-    return await this.clientSnsService.sendSms(createVerificationCodeDto, code);
+    return this.clientSnsService.sendSms(createVerificationCodeDto, code);
   }
 
   @Post('/verifyPhoneNumber')
-  async verifyPhoneNumber(
-    @Body(new ValidationPipe()) verifyPhoneNumberDto: VerifyPhoneNumberDto,
-  ) {
+  async verifyPhoneNumber(@Body() verifyPhoneNumberDto: VerifyPhoneNumberDto) {
     const isVerified =
       await this.verficationPhoneNumbersService.verifyPhoneNumber(
         verifyPhoneNumberDto,

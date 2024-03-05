@@ -30,13 +30,15 @@ export class ProductsService {
 
     const dbCategories = await this.getCategoriesByIds(categories);
 
-    const product = await this.productRepository.save({
+    const newProduct = this.productRepository.create({
       ...rest,
       discount,
       price,
       totalPrice: total,
       categories: dbCategories,
     });
+
+    const product = await this.productRepository.save(newProduct);
 
     const productId = product.id;
 
@@ -91,7 +93,7 @@ export class ProductsService {
       where: { id },
     });
 
-    if (product === null) {
+    if (!product) {
       throw new ProductNotFoundException(id);
     }
 
@@ -155,7 +157,6 @@ export class ProductsService {
       ...deletedProduct,
       imageName: null,
       imageUrl: '',
-      id,
     };
   }
 
@@ -175,11 +176,11 @@ export class ProductsService {
   }
 
   private async formatImage(file: Buffer): Promise<Buffer> {
-    return await sharp(file).jpeg().resize(600, 600).toBuffer();
+    return sharp(file).jpeg().resize(600, 600).toBuffer();
   }
 
   private async getCategoriesByIds(categories: number[]) {
-    return await this.productCategoryService.findAll({
+    return this.productCategoryService.findAll({
       where: { id: In(categories) },
     });
   }

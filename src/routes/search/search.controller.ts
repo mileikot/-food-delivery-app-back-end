@@ -8,7 +8,7 @@ export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
   @Get()
-  async search(@Query() searchDto: SearchDto) {
-    return await this.searchService.search(searchDto);
+  search(@Query() searchDto: SearchDto) {
+    return this.searchService.search(searchDto);
   }
 }

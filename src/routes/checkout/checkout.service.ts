@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { In } from 'typeorm';
 
 import { CheckoutCalculationDto } from './dto/checkout-calculation.dto';
@@ -16,7 +16,7 @@ export class CheckoutService {
 
     const quantityMap = products.reduce<Record<string, number>>(
       (acc, product) => {
-        acc[product.id.toString()] = product.quantity;
+        acc[product.id] = product.quantity;
 
         return acc;
       },
@@ -26,6 +26,10 @@ export class CheckoutService {
     const checkoutProducts = await this.productsService.findAll({
       where: { id: In(productIds) },
     });
+
+    if (checkoutProducts.length === 0) {
+      throw new NotFoundException('No products were found with the given ids');
+    }
 
     const totalPrice = checkoutProducts.reduce(
       (acc, product) => (acc += product.totalPrice * quantityMap[product.id]),

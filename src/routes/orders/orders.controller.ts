@@ -8,11 +8,13 @@ import {
   Patch,
   Post,
   Req,
+  UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from '@nestjs/common';
 
 import { RequestWithUser } from '../../types/common';
+import { ManagerAuthGuard, UserAuthGuard } from '../auth/guards';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -24,34 +26,40 @@ export class OrdersController {
 
   @Post()
   @UseInterceptors(ClassSerializerInterceptor)
-  async create(
+  @UseGuards(UserAuthGuard)
+  create(
     @Req() request: RequestWithUser,
-    @Body(new ValidationPipe()) createOrderDto: CreateOrderDto,
+    @Body() createOrderDto: CreateOrderDto,
   ) {
-    return await this.ordersService.create(createOrderDto, request.user);
+    return this.ordersService.create(createOrderDto, request.userId);
   }
 
   @Get()
-  async findAll() {
-    return await this.ordersService.findAll();
+  @UseGuards(ManagerAuthGuard)
+  findAll() {
+    return this.ordersService.findAll();
   }
 
   @Get('/my')
-  async findAllByOwnerId(@Req() request: RequestWithUser) {
-    return await this.ordersService.findAllByOwnerId(request.user.id);
+  @UseGuards(UserAuthGuard)
+  findAllByOwnerId(@Req() request: RequestWithUser) {
+    return this.ordersService.findAllByOwnerId(request.userId);
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: number) {
     return this.ordersService.findOne(id);
   }
 
   @Patch(':id')
+  @UseGuards(ManagerAuthGuard)
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.ordersService.update(+id, updateOrderDto);
   }
 
   @Delete(':id')
+  @UseGuards(ManagerAuthGuard)
   remove(@Param('id') id: string) {
     return this.ordersService.remove(+id);
   }

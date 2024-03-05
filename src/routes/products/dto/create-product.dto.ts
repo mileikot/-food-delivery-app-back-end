@@ -1,3 +1,4 @@
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsNumber,
@@ -27,6 +28,7 @@ export class CreateProductDto {
 
   @IsPositive()
   @IsNumber()
+  @Type(() => Number)
   readonly price: number;
 
   @IsBuffer()
@@ -36,19 +38,22 @@ export class CreateProductDto {
   @Min(0)
   @Max(5)
   @IsOptional()
+  @Transform(({ value }) => JSON.parse(value))
   readonly rating?: number;
 
   @IsNumber()
   @Min(0)
   @Max(100)
   @IsOptional()
+  @Transform(({ value }) => JSON.parse(value))
   readonly discount?: number;
 
   @ArrayNotEmpty()
+  @Transform(({ value }) => JSON.parse(value))
   readonly categories: number[];
 
   @IsNumber()
-  @IsOptional()
+  @Type(() => Number)
   @Validate(ProductStatusValidator)
   readonly status: ProductStatuses;
 }
