@@ -5,9 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import { OrderReview } from '../order-reviews/entities/order-review.entity';
 import { User } from '../users/user.entity';
 
 import { OrderProductDto } from './dto/order-product.dto';
@@ -59,4 +61,7 @@ export class Order {
   @JoinColumn({ name: 'ownerId' })
   @Exclude({ toPlainOnly: true })
   user: User;
+
+  @OneToOne(() => OrderReview, (review) => review.order)
+  review: OrderReview;
 }
