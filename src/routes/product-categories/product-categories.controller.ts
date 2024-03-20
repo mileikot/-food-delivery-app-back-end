@@ -6,8 +6,10 @@ import {
   Param,
   Patch,
   Post,
-  ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
+
+import { ManagerAuthGuard } from '../auth/guards';
 
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
@@ -20,36 +22,37 @@ export class ProductCategoriesController {
   ) {}
 
   @Post()
-  async create(
-    @Body(new ValidationPipe())
+  @UseGuards(ManagerAuthGuard)
+  create(
+    @Body()
     createProductCategoryDto: CreateProductCategoryDto,
   ) {
-    return await this.productCategoriesService.create(createProductCategoryDto);
+    return this.productCategoriesService.create(createProductCategoryDto);
   }
 
   @Get()
-  async findAll() {
-    return await this.productCategoriesService.findAll();
+  findAll() {
+    return this.productCategoriesService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.productCategoriesService.findOne(+id);
+  @UseGuards(ManagerAuthGuard)
+  findOne(@Param('id') id: string) {
+    return this.productCategoriesService.findOne(+id);
   }
 
   @Patch(':id')
-  async update(
+  @UseGuards(ManagerAuthGuard)
+  update(
     @Param('id') id: string,
     @Body() updateProductCategoryDto: UpdateProductCategoryDto,
   ) {
-    return await this.productCategoriesService.update(
-      +id,
-      updateProductCategoryDto,
-    );
+    return this.productCategoriesService.update(+id, updateProductCategoryDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.productCategoriesService.remove(+id);
+  @UseGuards(ManagerAuthGuard)
+  remove(@Param('id') id: string) {
+    return this.productCategoriesService.remove(+id);
   }
 }

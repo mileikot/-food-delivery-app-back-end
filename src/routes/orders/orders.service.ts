@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 
 import { CheckoutService } from '../checkout/checkout.service';
-import { User } from '../users/user.entity';
+import { CheckoutProductDto } from '../checkout/dto';
+import { UserNotFoundException } from '../users/exceptions';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -18,41 +19,43 @@ export class OrdersService {
     private readonly checkoutService: CheckoutService,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto, user: User): Promise<Order> {
+  async create(
+    createOrderDto: CreateOrderDto,
+    userId: number | null,
+  ): Promise<Order> {
     const { products, comment } = createOrderDto;
 
-    const { content, totalPrice } = await this.checkoutService.calculate({
-      products,
-    });
+    if (!userId) {
+      throw new UserNotFoundException();
+    }
 
-    const orderProducts: OrderProductDto[] = content.map(
-      ({ product, quantity }) => ({
-        id: product.id,
-        description: product.description,
-        price: product.totalPrice,
-        quantity,
-        title: product.title,
-      }),
-    );
+    const { orderProducts, totalPrice } =
+      await this.transformOrderProducts(products);
 
-    const order = await this.orderRepository.save({
+    const newOrder = this.orderRepository.create({
       total: totalPrice,
       products: orderProducts,
       comment,
-      ownerId: user.id,
+      ownerId: userId,
     });
+
+    const order = await this.orderRepository.save(newOrder);
 
     return order;
   }
 
   async findAll(filter?: FindManyOptions<Order>): Promise<Order[]> {
-    return await this.orderRepository.find({
+    return this.orderRepository.find({
       ...filter,
     });
   }
 
-  async findAllByOwnerId(id: number): Promise<Order[]> {
-    return await this.findAll({
+  async findAllByOwnerId(id: number | null): Promise<Order[]> {
+    if (!id) {
+      throw new UserNotFoundException();
+    }
+
+    return this.findAll({
       where: { user: { id } },
     });
   }
@@ -68,13 +71,22 @@ export class OrdersService {
   }
 
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
+    const { products, status } = updateOrderDto;
+
     const order = await this.orderRepository.findOne({ where: { id } });
 
     if (order === null) {
       throw new OrderNotFoundException(id);
     }
 
-    const mergedOrder = this.orderRepository.merge(order, updateOrderDto);
+    const { orderProducts, totalPrice } =
+      await this.transformOrderProducts(products);
+
+    const mergedOrder = this.orderRepository.merge(order, {
+      products: orderProducts,
+      status,
+      total: totalPrice,
+    });
 
     const updatedOrder = await this.orderRepository.save(mergedOrder);
 
@@ -90,9 +102,24 @@ export class OrdersService {
 
     const removedOrder = await this.orderRepository.remove(order);
 
-    return {
-      ...removedOrder,
-      id,
-    };
+    return removedOrder;
+  }
+
+  async transformOrderProducts(products: CheckoutProductDto[]) {
+    const { content, totalPrice } = await this.checkoutService.calculate({
+      products,
+    });
+
+    const orderProducts: OrderProductDto[] = content.map(
+      ({ product, quantity }) => ({
+        id: product.id,
+        description: product.description,
+        price: product.totalPrice,
+        quantity,
+        title: product.title,
+      }),
+    );
+
+    return { totalPrice, orderProducts };
   }
 }

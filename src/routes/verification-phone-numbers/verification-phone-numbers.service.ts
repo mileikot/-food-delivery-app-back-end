@@ -32,10 +32,12 @@ export class VerficationPhoneNumbersService {
 
     const { phoneNumber } = createVerificationCodeDto;
 
-    await this.phoneNumberVerificationRepository.save({
+    const newVerification = this.phoneNumberVerificationRepository.create({
       oneTimePassword: hashedCode,
       phoneNumber,
     });
+
+    await this.phoneNumberVerificationRepository.save(newVerification);
 
     return code;
   }
@@ -51,7 +53,7 @@ export class VerficationPhoneNumbersService {
       throw new Error("Code wasn't created for this number.");
     }
 
-    const isVerified = bcrypt.compare(code, dataToVerify.oneTimePassword);
+    const isVerified = await bcrypt.compare(code, dataToVerify.oneTimePassword);
 
     if (isVerified) {
       await this.phoneNumberVerificationRepository.delete({ phoneNumber });

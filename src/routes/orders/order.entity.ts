@@ -3,7 +3,6 @@ import { MaxLength, Min, Validate } from 'class-validator';
 import {
   Column,
   Entity,
-  Generated,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -23,12 +22,6 @@ export class Order {
   @Column({
     type: 'int',
   })
-  @Generated('increment')
-  orderId: number;
-
-  @Column({
-    type: 'int',
-  })
   ownerId: number;
 
   @Column({
@@ -39,7 +32,7 @@ export class Order {
   status: OrderStatuses;
 
   @Column({
-    type: 'int',
+    type: 'real',
   })
   @Min(0)
   total: number;

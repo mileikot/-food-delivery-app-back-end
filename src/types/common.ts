@@ -1,10 +1,14 @@
+import { HttpStatus } from '@nestjs/common';
 import { Request } from 'express';
 
-import { User } from '@/routes/users/user.entity';
-
 export type RequestWithUser = {
-  user: User;
-  token: string;
+  userId: number | null;
+  managerId: number | null;
 } & Request;
 
 export type TrueBasedMap<T extends string = string> = Record<T, true>;
+
+export interface ResponseWithoutData {
+  message: string;
+  statusCode: HttpStatus;
+}

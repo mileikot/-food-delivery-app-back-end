@@ -2,25 +2,23 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
-  MaxFileSizeValidator,
   Param,
   ParseFilePipe,
   Patch,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+import { ManagerAuthGuard } from '../auth/guards';
+
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { MAX_IMAGE_SIZE } from './constants';
 import { ProductsService } from './products.service';
-
-import { TransformFormDataPipe } from '@/pipes';
+import { maxFileSizeValidator } from './validation';
 
 @Controller('products')
 export class ProductsController {
@@ -28,53 +26,51 @@ export class ProductsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('image'))
-  async create(
+  @UseGuards(ManagerAuthGuard)
+  create(
     @UploadedFile(
       new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({
-            maxSize: MAX_IMAGE_SIZE,
-            message: `Image's size is too big!`,
-          }),
-          new FileTypeValidator({ fileType: /image\/(jpe?g)$/ }),
-        ],
-        fileIsRequired: true,
+        validators: [maxFileSizeValidator],
       }),
     )
     image: Express.Multer.File,
-    @Body(new TransformFormDataPipe(), new ValidationPipe())
+    @Body()
     createProductDto: CreateProductDto,
   ) {
-    return await this.productsService.create(createProductDto, image.buffer);
+    return this.productsService.create(createProductDto, image.buffer);
   }
 
   @Get()
-  async findAll() {
-    return await this.productsService.findAll();
+  findAll() {
+    return this.productsService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.productsService.findOne(+id);
+  findOne(@Param('id') id: string) {
+    return this.productsService.findOne(+id);
   }
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
-  async update(
+  @UseGuards(ManagerAuthGuard)
+  update(
     @Param('id') id: string,
-    @UploadedFile() image: Express.Multer.File,
-    @Body(new TransformFormDataPipe())
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [maxFileSizeValidator],
+        fileIsRequired: false,
+      }),
+    )
+    image: Express.Multer.File,
+    @Body()
     updateProductDto: UpdateProductDto,
   ) {
-    return await this.productsService.update(
-      +id,
-      updateProductDto,
-      image?.buffer,
-    );
+    return this.productsService.update(+id, updateProductDto, image?.buffer);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.productsService.remove(+id);
+  @UseGuards(ManagerAuthGuard)
+  remove(@Param('id') id: string) {
+    return this.productsService.remove(+id);
   }
 }

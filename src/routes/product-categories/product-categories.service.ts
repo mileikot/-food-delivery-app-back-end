@@ -15,17 +15,20 @@ export class ProductCategoriesService {
   ) {}
 
   async create(createProductCategoryDto: CreateProductCategoryDto) {
-    const newCategory = await this.productCategoryRepository.save(
+    const newCategory = this.productCategoryRepository.create(
       createProductCategoryDto,
     );
 
-    return newCategory;
+    const savedCategory =
+      await this.productCategoryRepository.save(newCategory);
+
+    return savedCategory;
   }
 
   async findAll(
     options?: FindManyOptions<ProductCategory>,
   ): Promise<ProductCategory[]> {
-    return await this.productCategoryRepository.find(options);
+    return this.productCategoryRepository.find(options);
   }
 
   async findOne(id: number): Promise<ProductCategory> {
@@ -75,9 +78,6 @@ export class ProductCategoriesService {
     const removedProductCategory =
       await this.productCategoryRepository.remove(productCategory);
 
-    return {
-      ...removedProductCategory,
-      id,
-    };
+    return removedProductCategory;
   }
 }

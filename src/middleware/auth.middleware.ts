@@ -3,15 +3,14 @@ import {
   NestMiddleware,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { NextFunction, Response } from 'express';
-import * as jwt from 'jsonwebtoken';
-import { ArrayContains } from 'typeorm';
 
 import { RequestWithUser } from '../types/common';
 
-import { UserJwtPayload } from './types';
+import { JwtPayloadWithIds } from './types';
 
+import { ManagersService } from '@/routes/managers/managers.service';
 import { UserNotFoundException } from '@/routes/users/exceptions';
 import { UsersService } from '@/routes/users/users.service';
 
@@ -19,7 +18,8 @@ import { UsersService } from '@/routes/users/users.service';
 export class AuthMiddleware implements NestMiddleware {
   constructor(
     private readonly usersService: UsersService,
-    readonly configService: ConfigService,
+    private readonly managersService: ManagersService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async use(req: RequestWithUser, _: Response, next: NextFunction) {
@@ -29,21 +29,28 @@ export class AuthMiddleware implements NestMiddleware {
       throw new UnauthorizedException();
     }
 
-    const decoded = jwt.verify(
+    const { userId, managerId } = this.jwtService.verify(
       token,
-      this.configService.get('JWT_SECRET') as jwt.Secret,
-    ) as UserJwtPayload;
+    ) as JwtPayloadWithIds;
 
-    const user = await this.usersService.findOne({
-      where: { id: decoded.id, tokens: ArrayContains([token]) },
-    });
+    const user = userId
+      ? await this.usersService.findOne({
+          where: { id: userId },
+        })
+      : null;
 
-    if (!user) {
+    const manager = managerId
+      ? await this.managersService.findOne({
+          where: { id: managerId },
+        })
+      : null;
+
+    if (!user && !manager) {
       throw new UserNotFoundException();
     }
 
-    req.token = token;
-    req.user = user;
+    req.userId = user?.id ?? null;
+    req.managerId = manager?.id ?? null;
 
     next();
   }

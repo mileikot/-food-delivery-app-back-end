@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import { IsMobilePhone, MinLength } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -22,14 +21,6 @@ export class User {
   @MinLength(7)
   @IsMobilePhone()
   phoneNumber: string;
-
-  @Column({
-    type: 'varchar',
-    array: true,
-    select: false,
-  })
-  @Exclude({ toPlainOnly: true })
-  tokens: string[];
 
   @OneToMany(() => Order, (order) => order.user, {
     onDelete: 'CASCADE',
