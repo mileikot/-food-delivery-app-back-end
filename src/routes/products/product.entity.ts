@@ -11,10 +11,14 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { ProductCategory } from '../product-categories/product-category.entity';
+import { ProductRating } from '../product-reviews/entities/product-rating.entity';
+import { ProductReview } from '../product-reviews/entities/product-review.entity';
 
 import { ProductStatuses } from './statuses/productStatuses';
 import { ProductStatusValidator } from './validation';
@@ -55,13 +59,6 @@ export class Product {
   totalPrice: number;
 
   @Column({
-    type: 'float',
-    nullable: true,
-  })
-  @Max(5)
-  rating: number | null;
-
-  @Column({
     type: 'int',
     nullable: true,
   })
@@ -81,5 +78,13 @@ export class Product {
   @ArrayNotEmpty()
   categories: ProductCategory[];
 
-  public imageUrl: string;
+  @OneToMany(() => ProductReview, (review) => review.product)
+  reviews: ProductReview[];
+
+  @OneToOne(() => ProductRating, (rating) => rating.product, {
+    eager: true,
+  })
+  rating: ProductRating;
+
+  imageUrl: string;
 }

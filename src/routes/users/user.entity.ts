@@ -2,6 +2,7 @@ import { IsMobilePhone, MinLength } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Order } from '../orders/order.entity';
+import { ProductReview } from '../product-reviews/entities/product-review.entity';
 
 @Entity()
 export class User {
@@ -26,4 +27,9 @@ export class User {
     onDelete: 'CASCADE',
   })
   orders: Order[];
+
+  @OneToMany(() => ProductReview, (review) => review.user, {
+    onDelete: 'CASCADE',
+  })
+  productReviews: ProductReview[];
 }

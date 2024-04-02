@@ -6,16 +6,15 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
 
-import { Order } from '@/routes/orders/order.entity';
+import { Product } from '@/routes/products/product.entity';
 import { User } from '@/routes/users/user.entity';
 
 @Entity()
-export class OrderReview {
+export class ProductReview {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -26,8 +25,8 @@ export class OrderReview {
   user: User;
 
   @Column()
-  @RelationId((review: OrderReview) => review.order)
-  orderId: number;
+  @RelationId((review: ProductReview) => review.product)
+  productId: number;
 
   @Column({
     type: 'int',
@@ -43,10 +42,10 @@ export class OrderReview {
   @MaxLength(200)
   comment: string | null;
 
-  @OneToOne(() => Order, (order) => order.review, {
+  @ManyToOne(() => Product, (product) => product.reviews, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   @Exclude({ toPlainOnly: true })
-  order: Order;
+  product: Product;
 }
