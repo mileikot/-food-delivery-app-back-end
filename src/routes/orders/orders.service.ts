@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 import { CheckoutService } from '../checkout/checkout.service';
 import { CheckoutProductDto } from '../checkout/dto';
@@ -60,14 +60,18 @@ export class OrdersService {
     });
   }
 
-  async findOne(id: number): Promise<Order> {
-    const order = await this.orderRepository.findOne({ where: { id } });
+  async findOne(options: FindOneOptions<Order>): Promise<Order> {
+    const order = await this.orderRepository.findOne(options);
 
     if (order === null) {
-      throw new OrderNotFoundException(id);
+      throw new OrderNotFoundException();
     }
 
     return order;
+  }
+
+  findOneById(id: number): Promise<Order> {
+    return this.findOne({ where: { id } });
   }
 
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
@@ -76,7 +80,7 @@ export class OrdersService {
     const order = await this.orderRepository.findOne({ where: { id } });
 
     if (order === null) {
-      throw new OrderNotFoundException(id);
+      throw new OrderNotFoundException();
     }
 
     const { orderProducts, totalPrice } =
@@ -97,7 +101,7 @@ export class OrdersService {
     const order = await this.orderRepository.findOne({ where: { id } });
 
     if (order === null) {
-      throw new OrderNotFoundException(id);
+      throw new OrderNotFoundException();
     }
 
     const removedOrder = await this.orderRepository.remove(order);

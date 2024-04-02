@@ -6,6 +6,7 @@ import { FilesBucketModule } from './modules/aws';
 import { AuthModule } from './routes/auth/auth.module';
 import { CheckoutModule } from './routes/checkout/checkout.module';
 import { ManagersModule } from './routes/managers/managers.module';
+import { OrderReviewsModule } from './routes/order-reviews/order-reviews.module';
 import { OrdersModule } from './routes/orders/orders.module';
 import { ProductsModule } from './routes/products/products.module';
 import { SearchModule } from './routes/search/search.module';
@@ -40,6 +41,7 @@ import { VerficationPhoneNumberModule } from './routes/verification-phone-number
     VerficationPhoneNumberModule,
     ManagersModule,
     AuthModule,
+    OrderReviewsModule,
   ],
 })
 export class AppModule {}
