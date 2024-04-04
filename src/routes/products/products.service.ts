@@ -58,6 +58,10 @@ export class ProductsService {
   async findAll(options?: FindManyOptions<Product>): Promise<Product[]> {
     const products = await this.productRepository.find({
       ...options,
+      relations: {
+        categories: true,
+        ...options?.relations,
+      },
     });
 
     const updatedProducts = await this.assignImageURLToProducts(products);
@@ -66,7 +70,13 @@ export class ProductsService {
   }
 
   async findOne(options: FindOneOptions<Product>): Promise<Product> {
-    const product = await this.productRepository.findOne(options);
+    const product = await this.productRepository.findOne({
+      ...options,
+      relations: {
+        categories: true,
+        ...options?.relations,
+      },
+    });
 
     if (product === null) {
       throw new ProductNotFoundException();
@@ -93,6 +103,9 @@ export class ProductsService {
   ): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id },
+      relations: {
+        categories: true,
+      },
     });
 
     if (!product) {

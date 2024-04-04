@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import { IsInt, Max, MaxLength } from 'class-validator';
 import {
   Column,
@@ -8,10 +7,9 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
-  RelationId,
 } from 'typeorm';
 
-import { Order } from '@/routes/orders/order.entity';
+import { Order } from '@/routes/orders/entities/order.entity';
 import { User } from '@/routes/users/user.entity';
 
 @Entity()
@@ -25,9 +23,11 @@ export class OrderReview {
   @ManyToOne(() => User, (user) => user.productReviews)
   user: User;
 
-  @Column()
-  @RelationId((review: OrderReview) => review.order)
-  orderId: number;
+  @OneToOne(() => Order, (order) => order.review, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  order: Order;
 
   @Column({
     type: 'int',
@@ -42,11 +42,4 @@ export class OrderReview {
   })
   @MaxLength(200)
   comment: string | null;
-
-  @OneToOne(() => Order, (order) => order.review, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn()
-  @Exclude({ toPlainOnly: true })
-  order: Order;
 }

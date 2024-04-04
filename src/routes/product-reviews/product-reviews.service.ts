@@ -38,9 +38,9 @@ export class ProductReviewsService {
     }
 
     const newReview = this.productReviewsRepository.create({
-      productId,
       comment,
       rating,
+      product: { id: product.id },
       user: { id: userId },
     });
 
@@ -64,7 +64,7 @@ export class ProductReviewsService {
 
   async findAllByProductId(id: number): Promise<ProductReview[]> {
     const reviews = await this.productReviewsRepository.find({
-      where: { productId: id },
+      where: { product: { id } },
     });
 
     return reviews;
@@ -128,7 +128,7 @@ export class ProductReviewsService {
     const deletedReview = await this.productReviewsRepository.remove(review);
 
     await this.productRatingService.decrease({
-      productId: review.productId,
+      productId: review.product.id,
       rating: review.rating,
     });
 

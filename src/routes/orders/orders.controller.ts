@@ -43,7 +43,7 @@ export class OrdersController {
   @Get('/my')
   @UseGuards(UserAuthGuard)
   findAllByOwnerId(@Req() request: RequestWithUser) {
-    return this.ordersService.findAllByOwnerId(request.userId);
+    return this.ordersService.findAllByUserId(request.userId);
   }
 
   @Get(':id')

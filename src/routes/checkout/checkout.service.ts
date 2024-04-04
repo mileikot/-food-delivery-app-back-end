@@ -12,11 +12,11 @@ export class CheckoutService {
   async calculate(checkoutCalculationDto: CheckoutCalculationDto) {
     const { products } = checkoutCalculationDto;
 
-    const productIds = products.map((product) => product.id);
+    const productIds = products.map((product) => product.productId);
 
     const quantityMap = products.reduce<Record<string, number>>(
       (acc, product) => {
-        acc[product.id] = product.quantity;
+        acc[product.productId] = product.quantity;
 
         return acc;
       },

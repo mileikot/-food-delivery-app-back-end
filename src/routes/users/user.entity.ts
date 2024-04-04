@@ -1,7 +1,7 @@
 import { IsMobilePhone, MinLength } from 'class-validator';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-import { Order } from '../orders/order.entity';
+import { Order } from '../orders/entities/order.entity';
 import { ProductReview } from '../product-reviews/entities/product-review.entity';
 
 @Entity()

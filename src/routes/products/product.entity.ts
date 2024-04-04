@@ -71,9 +71,7 @@ export class Product {
   })
   imageName: string | null;
 
-  @ManyToMany(() => ProductCategory, (category) => category.products, {
-    eager: true,
-  })
+  @ManyToMany(() => ProductCategory, (category) => category.products)
   @JoinTable()
   @ArrayNotEmpty()
   categories: ProductCategory[];

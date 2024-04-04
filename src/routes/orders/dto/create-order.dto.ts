@@ -8,14 +8,14 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { CheckoutProductDto } from '@/routes/checkout/dto';
+import { CalculateOrderProductsDto } from './calculate-order-products.dto';
 
 export class CreateOrderDto {
   @IsArray()
   @ArrayNotEmpty()
-  @Type(() => CheckoutProductDto)
+  @Type(() => CalculateOrderProductsDto)
   @ValidateNested({ each: true })
-  products: CheckoutProductDto[];
+  products: CalculateOrderProductsDto[];
 
   @IsString()
   @IsOptional()

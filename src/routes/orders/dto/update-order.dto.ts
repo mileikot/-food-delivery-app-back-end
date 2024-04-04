@@ -9,7 +9,7 @@ import {
 import { OrderStatuses } from '../statuses';
 import { OrderStatusValidator } from '../validation';
 
-import { CheckoutProductDto } from '@/routes/checkout/dto';
+import { CalculateOrderProductsDto } from './calculate-order-products.dto';
 
 export class UpdateOrderDto {
   @Validate(OrderStatusValidator)
@@ -17,7 +17,7 @@ export class UpdateOrderDto {
 
   @IsArray()
   @ArrayNotEmpty()
-  @Type(() => CheckoutProductDto)
+  @Type(() => CalculateOrderProductsDto)
   @ValidateNested({ each: true })
-  products: CheckoutProductDto[];
+  products: CalculateOrderProductsDto[];
 }
