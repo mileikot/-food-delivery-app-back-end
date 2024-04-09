@@ -8,6 +8,7 @@ import { CheckoutModule } from './routes/checkout/checkout.module';
 import { ManagersModule } from './routes/managers/managers.module';
 import { OrderReviewsModule } from './routes/order-reviews/order-reviews.module';
 import { OrdersModule } from './routes/orders/orders.module';
+import { ProductReviewsModule } from './routes/product-reviews/product-reviews.module';
 import { ProductsModule } from './routes/products/products.module';
 import { SearchModule } from './routes/search/search.module';
 import { UsersModule } from './routes/users/users.module';
@@ -42,6 +43,7 @@ import { VerficationPhoneNumberModule } from './routes/verification-phone-number
     ManagersModule,
     AuthModule,
     OrderReviewsModule,
+    ProductReviewsModule,
   ],
 })
 export class AppModule {}

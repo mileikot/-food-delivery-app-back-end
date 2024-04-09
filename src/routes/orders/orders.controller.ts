@@ -48,8 +48,8 @@ export class OrdersController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  findOne(@Param('id') id: number) {
-    return this.ordersService.findOneById(id);
+  findOne(@Param('id') id: string) {
+    return this.ordersService.findOneById(+id);
   }
 
   @Patch(':id')

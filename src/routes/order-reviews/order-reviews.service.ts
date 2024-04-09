@@ -4,6 +4,7 @@ import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 import { OrderNotFoundException } from '../orders/exceptions';
 import { OrdersService } from '../orders/orders.service';
+import { UserNotFoundException } from '../users/exceptions';
 
 import { CreateOrderReviewDto } from './dto/create-order-review.dto';
 import { UpdateOrderReviewDto } from './dto/update-order-review.dto';
@@ -23,8 +24,13 @@ export class OrderReviewsService {
 
   async create(
     createOrderReviewDto: CreateOrderReviewDto,
+    userId: number | null,
   ): Promise<OrderReview> {
     const { orderId, ...restDto } = createOrderReviewDto;
+
+    if (!userId) {
+      throw new UserNotFoundException();
+    }
 
     const order = await this.ordersService.findOne({
       where: { id: orderId },
@@ -42,6 +48,7 @@ export class OrderReviewsService {
     const newReview = this.orderReviewsRepository.create({
       ...restDto,
       order: { id: orderId },
+      user: { id: userId },
     });
 
     const createdReview = await this.orderReviewsRepository.save(newReview);

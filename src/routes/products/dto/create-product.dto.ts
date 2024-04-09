@@ -36,13 +36,6 @@ export class CreateProductDto {
 
   @IsNumber()
   @Min(0)
-  @Max(5)
-  @IsOptional()
-  @Transform(({ value }) => JSON.parse(value))
-  readonly rating?: number;
-
-  @IsNumber()
-  @Min(0)
   @Max(100)
   @IsOptional()
   @Transform(({ value }) => JSON.parse(value))

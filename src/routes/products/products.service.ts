@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as sharp from 'sharp';
-import { FindManyOptions, In, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, In, Repository } from 'typeorm';
 
 import { ProductCategoriesService } from '../product-categories/product-categories.service';
 
@@ -65,13 +65,11 @@ export class ProductsService {
     return updatedProducts;
   }
 
-  async findOne(id: number): Promise<Product> {
-    const product = await this.productRepository.findOne({
-      where: { id },
-    });
+  async findOne(options: FindOneOptions<Product>): Promise<Product> {
+    const product = await this.productRepository.findOne(options);
 
     if (product === null) {
-      throw new ProductNotFoundException(id);
+      throw new ProductNotFoundException();
     }
 
     const imageUrl = await this.filesService.getFileURL(
@@ -84,6 +82,10 @@ export class ProductsService {
     return product;
   }
 
+  findOneById(id: number): Promise<Product> {
+    return this.findOne({ where: { id } });
+  }
+
   async update(
     id: number,
     updateProductDto: UpdateProductDto,
@@ -94,7 +96,7 @@ export class ProductsService {
     });
 
     if (!product) {
-      throw new ProductNotFoundException(id);
+      throw new ProductNotFoundException();
     }
 
     const { price, discount, categories, ...rest } = updateProductDto;
@@ -145,7 +147,7 @@ export class ProductsService {
     const toBeDeletedProduct = await this.productRepository.findOneBy({ id });
 
     if (toBeDeletedProduct === null) {
-      throw new ProductNotFoundException(id);
+      throw new ProductNotFoundException();
     }
 
     await this.filesService.deleteFiles(id);
