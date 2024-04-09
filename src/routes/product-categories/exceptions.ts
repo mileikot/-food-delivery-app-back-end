@@ -1,7 +1,13 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 export class ProductCategoryNotFoundException extends NotFoundException {
-  constructor(public id: number) {
-    super(`A category with the id ${id} doesn't exist`);
+  constructor() {
+    super(`A category with this id doesn't exist`);
+  }
+}
+
+export class ProductCategoryAlreadyExistsException extends BadRequestException {
+  constructor() {
+    super(`The category with this name already exists`);
   }
 }

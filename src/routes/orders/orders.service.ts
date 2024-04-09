@@ -74,7 +74,14 @@ export class OrdersService {
   }
 
   async findOne(options: FindOneOptions<Order>): Promise<Order> {
-    const order = await this.orderRepository.findOne(options);
+    const order = await this.orderRepository.findOne({
+      ...options,
+      relations: {
+        orderProducts: true,
+        user: true,
+        ...options?.relations,
+      },
+    });
 
     if (order === null) {
       throw new OrderNotFoundException();

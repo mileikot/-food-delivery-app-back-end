@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   ArrayNotEmpty,
   Max,
@@ -82,6 +83,7 @@ export class Product {
   @OneToOne(() => ProductRating, (rating) => rating.product, {
     eager: true,
   })
+  @Transform(({ value }) => value?.avgRating)
   rating: ProductRating;
 
   imageUrl: string;
