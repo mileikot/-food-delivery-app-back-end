@@ -4,7 +4,10 @@ import { FindManyOptions, Repository } from 'typeorm';
 
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
-import { ProductCategoryNotFoundException } from './exceptions';
+import {
+  ProductCategoryAlreadyExistsException,
+  ProductCategoryNotFoundException,
+} from './exceptions';
 import { ProductCategory } from './product-category.entity';
 
 @Injectable()
@@ -15,9 +18,22 @@ export class ProductCategoriesService {
   ) {}
 
   async create(createProductCategoryDto: CreateProductCategoryDto) {
-    const newCategory = this.productCategoryRepository.create(
-      createProductCategoryDto,
-    );
+    const { name } = createProductCategoryDto;
+
+    const slug = this.createCategorySlug(name);
+
+    const existingCategory = await this.productCategoryRepository.findOne({
+      where: { slug },
+    });
+
+    if (existingCategory) {
+      throw new ProductCategoryAlreadyExistsException();
+    }
+
+    const newCategory = this.productCategoryRepository.create({
+      name: name.trim(),
+      slug,
+    });
 
     const savedCategory =
       await this.productCategoryRepository.save(newCategory);
@@ -37,7 +53,7 @@ export class ProductCategoriesService {
     });
 
     if (productCategory === null) {
-      throw new ProductCategoryNotFoundException(id);
+      throw new ProductCategoryNotFoundException();
     }
 
     return productCategory;
@@ -51,17 +67,24 @@ export class ProductCategoriesService {
       id,
     });
 
-    if (productCategory === null) {
-      throw new ProductCategoryNotFoundException(id);
+    if (!productCategory) {
+      throw new ProductCategoryNotFoundException();
     }
 
-    const toBeUpdatedCategory = this.productCategoryRepository.merge(
+    const { name } = updateProductCategoryDto;
+
+    const slug = this.createCategorySlug(name);
+
+    const mergedCategory = this.productCategoryRepository.merge(
       productCategory,
-      updateProductCategoryDto,
+      {
+        name: name.trim(),
+        slug,
+      },
     );
 
     const updatedCategory =
-      await this.productCategoryRepository.save(toBeUpdatedCategory);
+      await this.productCategoryRepository.save(mergedCategory);
 
     return updatedCategory;
   }
@@ -72,12 +95,20 @@ export class ProductCategoriesService {
     });
 
     if (productCategory === null) {
-      throw new ProductCategoryNotFoundException(id);
+      throw new ProductCategoryNotFoundException();
     }
 
     const removedProductCategory =
       await this.productCategoryRepository.remove(productCategory);
 
     return removedProductCategory;
+  }
+
+  createCategorySlug(name: string) {
+    return name
+      .trim()
+      .split(' ')
+      .map((part) => part.toLowerCase())
+      .join('-');
   }
 }

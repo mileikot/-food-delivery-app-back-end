@@ -2,7 +2,7 @@ import { IsInt, Max, Min } from 'class-validator';
 
 export class CheckoutProductDto {
   @IsInt()
-  readonly id: number;
+  readonly productId: number;
 
   @IsInt()
   @Min(1)
