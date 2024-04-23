@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 
@@ -12,7 +11,6 @@ import { User } from './user.entity';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly jwtService: JwtService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -41,16 +39,8 @@ export class UsersService {
     return user;
   }
 
-  async findOneById(id: number): Promise<User> {
-    const user = await this.findOne({
-      where: { id },
-    });
-
-    if (user === null) {
-      throw new UserNotFoundException();
-    }
-
-    return user;
+  findOneById(id: number): Promise<User> {
+    return this.findOne({ where: { id } });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

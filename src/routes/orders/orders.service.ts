@@ -83,7 +83,7 @@ export class OrdersService {
       },
     });
 
-    if (order === null) {
+    if (!order) {
       throw new OrderNotFoundException();
     }
 
@@ -97,16 +97,7 @@ export class OrdersService {
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const { products, status } = updateOrderDto;
 
-    const order = await this.orderRepository.findOne({
-      where: { id },
-      relations: {
-        orderProducts: true,
-      },
-    });
-
-    if (order === null) {
-      throw new OrderNotFoundException();
-    }
+    const order = await this.findOneById(id);
 
     const { orderProducts, totalPrice } =
       await this.calculateOrderProducts(products);
@@ -135,11 +126,7 @@ export class OrdersService {
   }
 
   async remove(id: number): Promise<Order> {
-    const order = await this.orderRepository.findOne({ where: { id } });
-
-    if (order === null) {
-      throw new OrderNotFoundException();
-    }
+    const order = await this.findOneById(id);
 
     const removedOrder = await this.orderRepository.remove(order);
 

@@ -57,27 +57,15 @@ export class ManagersService {
     return manager;
   }
 
-  async findOneById(id: number): Promise<Manager> {
-    const manager = await this.findOne({
-      where: { id },
-    });
-
-    if (manager === null) {
-      throw new ManagerNotFoundException();
-    }
-
-    return manager;
+  findOneById(id: number): Promise<Manager> {
+    return this.findOne({ where: { id } });
   }
 
   async update(
     id: number,
     updateManagerDto: UpdateManagerDto,
   ): Promise<Manager> {
-    const manager = await this.managersRepository.findOneBy({ id });
-
-    if (!manager) {
-      throw new ManagerNotFoundException();
-    }
+    const manager = await this.findOneById(id);
 
     const mergedManager = this.managersRepository.merge(
       manager,
@@ -90,11 +78,7 @@ export class ManagersService {
   }
 
   async remove(id: number): Promise<Manager> {
-    const manager = await this.managersRepository.findOneBy({ id });
-
-    if (!manager) {
-      throw new ManagerNotFoundException();
-    }
+    const manager = await this.findOneById(id);
 
     const deletedManager = await this.managersRepository.remove(manager);
 

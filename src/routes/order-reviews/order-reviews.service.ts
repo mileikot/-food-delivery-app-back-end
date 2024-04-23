@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
-import { OrderNotFoundException } from '../orders/exceptions';
 import { OrdersService } from '../orders/orders.service';
 import { UserNotFoundException } from '../users/exceptions';
 
@@ -34,12 +33,10 @@ export class OrderReviewsService {
 
     const order = await this.ordersService.findOne({
       where: { id: orderId },
-      relations: ['review'],
+      relations: {
+        review: true,
+      },
     });
-
-    if (!order) {
-      throw new OrderNotFoundException();
-    }
 
     if (order?.review) {
       throw new OrderReviewAlreadyExistException();
@@ -56,27 +53,25 @@ export class OrderReviewsService {
     return createdReview;
   }
 
-  async findAll(
-    options?: FindManyOptions<OrderReview>,
-  ): Promise<OrderReview[]> {
-    const reviews = await this.orderReviewsRepository.find(options);
-
-    return reviews;
+  findAll(options?: FindManyOptions<OrderReview>): Promise<OrderReview[]> {
+    return this.orderReviewsRepository.find({
+      ...options,
+      relations: {
+        order: true,
+        user: true,
+        ...options?.relations,
+      },
+    });
   }
 
   async findOne(options: FindOneOptions<OrderReview>): Promise<OrderReview> {
-    const review = await this.orderReviewsRepository.findOne(options);
-
-    if (review === null) {
-      throw new OrderReviewNotFoundException();
-    }
-
-    return review;
-  }
-
-  async findOneById(id: number): Promise<OrderReview> {
-    const review = await this.findOne({
-      where: { id },
+    const review = await this.orderReviewsRepository.findOne({
+      ...options,
+      relations: {
+        order: true,
+        user: true,
+        ...options?.relations,
+      },
     });
 
     if (review === null) {
@@ -84,20 +79,17 @@ export class OrderReviewsService {
     }
 
     return review;
+  }
+
+  findOneById(id: number): Promise<OrderReview> {
+    return this.findOne({ where: { id } });
   }
 
   async update(
     id: number,
     updateOrderReviewDto: UpdateOrderReviewDto,
   ): Promise<OrderReview> {
-    const review = await this.orderReviewsRepository.findOne({
-      where: { id },
-      loadRelationIds: true,
-    });
-
-    if (!review) {
-      throw new OrderReviewNotFoundException();
-    }
+    const review = await this.findOneById(id);
 
     const mergedReview = this.orderReviewsRepository.merge(
       review,
@@ -110,11 +102,7 @@ export class OrderReviewsService {
   }
 
   async remove(id: number): Promise<OrderReview> {
-    const review = await this.orderReviewsRepository.findOneBy({ id });
-
-    if (!review) {
-      throw new OrderReviewNotFoundException();
-    }
+    const review = await this.findOneById(id);
 
     const deletedReview = await this.orderReviewsRepository.remove(review);
 

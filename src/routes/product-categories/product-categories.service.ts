@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
@@ -47,29 +47,28 @@ export class ProductCategoriesService {
     return this.productCategoryRepository.find(options);
   }
 
-  async findOne(id: number): Promise<ProductCategory> {
-    const productCategory = await this.productCategoryRepository.findOne({
-      where: { id },
-    });
+  async findOne(
+    options: FindOneOptions<ProductCategory>,
+  ): Promise<ProductCategory> {
+    const productCategory =
+      await this.productCategoryRepository.findOne(options);
 
-    if (productCategory === null) {
+    if (!productCategory) {
       throw new ProductCategoryNotFoundException();
     }
 
     return productCategory;
   }
 
+  findOneById(id: number): Promise<ProductCategory> {
+    return this.findOne({ where: { id } });
+  }
+
   async update(
     id: number,
     updateProductCategoryDto: UpdateProductCategoryDto,
   ): Promise<ProductCategory> {
-    const productCategory = await this.productCategoryRepository.findOneBy({
-      id,
-    });
-
-    if (!productCategory) {
-      throw new ProductCategoryNotFoundException();
-    }
+    const productCategory = await this.findOneById(id);
 
     const { name } = updateProductCategoryDto;
 
@@ -90,13 +89,7 @@ export class ProductCategoriesService {
   }
 
   async remove(id: number): Promise<ProductCategory> {
-    const productCategory = await this.productCategoryRepository.findOneBy({
-      id,
-    });
-
-    if (productCategory === null) {
-      throw new ProductCategoryNotFoundException();
-    }
+    const productCategory = await this.findOneById(id);
 
     const removedProductCategory =
       await this.productCategoryRepository.remove(productCategory);
