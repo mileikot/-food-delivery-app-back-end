@@ -101,16 +101,7 @@ export class ProductsService {
     updateProductDto: UpdateProductDto,
     image?: Buffer,
   ): Promise<Product> {
-    const product = await this.productRepository.findOne({
-      where: { id },
-      relations: {
-        categories: true,
-      },
-    });
-
-    if (!product) {
-      throw new ProductNotFoundException();
-    }
+    const product = await this.findOneById(id);
 
     const { price, discount, categories, ...rest } = updateProductDto;
 
@@ -157,16 +148,11 @@ export class ProductsService {
   }
 
   async remove(id: number): Promise<Product> {
-    const toBeDeletedProduct = await this.productRepository.findOneBy({ id });
-
-    if (toBeDeletedProduct === null) {
-      throw new ProductNotFoundException();
-    }
+    const product = await this.findOneById(id);
 
     await this.filesService.deleteFiles(id);
 
-    const deletedProduct =
-      await this.productRepository.remove(toBeDeletedProduct);
+    const deletedProduct = await this.productRepository.remove(product);
 
     return {
       ...deletedProduct,

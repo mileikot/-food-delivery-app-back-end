@@ -57,23 +57,35 @@ export class ProductReviewsService {
   async findAll(
     options?: FindManyOptions<ProductReview>,
   ): Promise<ProductReview[]> {
-    const reviews = await this.productReviewsRepository.find(options);
+    const reviews = await this.productReviewsRepository.find({
+      ...options,
+      relations: {
+        product: true,
+        user: true,
+        ...options?.relations,
+      },
+    });
 
     return reviews;
   }
 
-  async findAllByProductId(id: number): Promise<ProductReview[]> {
-    const reviews = await this.productReviewsRepository.find({
+  findAllByProductId(id: number): Promise<ProductReview[]> {
+    return this.findAll({
       where: { product: { id } },
     });
-
-    return reviews;
   }
 
   async findOne(
     options: FindOneOptions<ProductReview>,
   ): Promise<ProductReview> {
-    const review = await this.productReviewsRepository.findOne(options);
+    const review = await this.productReviewsRepository.findOne({
+      ...options,
+      relations: {
+        product: true,
+        user: true,
+        ...options?.relations,
+      },
+    });
 
     if (review === null) {
       throw new ProductReviewNotFoundException();
@@ -82,30 +94,15 @@ export class ProductReviewsService {
     return review;
   }
 
-  async findOneById(id: number): Promise<ProductReview> {
-    const review = await this.findOne({
-      where: { id },
-    });
-
-    if (review === null) {
-      throw new ProductReviewNotFoundException();
-    }
-
-    return review;
+  findOneById(id: number): Promise<ProductReview> {
+    return this.findOne({ where: { id } });
   }
 
   async update(
     id: number,
     updateProductReviewDto: UpdateProductReviewDto,
   ): Promise<ProductReview> {
-    const review = await this.productReviewsRepository.findOne({
-      where: { id },
-      loadRelationIds: true,
-    });
-
-    if (!review) {
-      throw new ProductReviewNotFoundException();
-    }
+    const review = await this.findOneById(id);
 
     const mergedReview = this.productReviewsRepository.merge(
       review,
@@ -119,11 +116,7 @@ export class ProductReviewsService {
   }
 
   async remove(id: number): Promise<ProductReview> {
-    const review = await this.productReviewsRepository.findOneBy({ id });
-
-    if (!review) {
-      throw new ProductReviewNotFoundException();
-    }
+    const review = await this.findOneById(id);
 
     const deletedReview = await this.productReviewsRepository.remove(review);
 

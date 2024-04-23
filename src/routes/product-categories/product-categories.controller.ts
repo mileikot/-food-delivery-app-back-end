@@ -38,7 +38,7 @@ export class ProductCategoriesController {
   @Get(':id')
   @UseGuards(ManagerAuthGuard)
   findOne(@Param('id') id: string) {
-    return this.productCategoriesService.findOne(+id);
+    return this.productCategoriesService.findOneById(+id);
   }
 
   @Patch(':id')
