@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 
 import { UserAuthGuard } from '../auth/guards';
 
@@ -10,9 +10,9 @@ import { CheckoutService } from './checkout.service';
 export class CheckoutController {
   constructor(private readonly checkoutService: CheckoutService) {}
 
-  @Get('calculate')
+  @Post('calculate')
   calculate(
-    @Query()
+    @Body()
     checkoutCalculationDto: CheckoutCalculationDto,
   ) {
     return this.checkoutService.calculate(checkoutCalculationDto);
