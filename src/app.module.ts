@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import typeorm from './config/typeorm';
 import { FilesBucketModule } from './modules/aws';
 import { AuthModule } from './routes/auth/auth.module';
 import { CheckoutModule } from './routes/checkout/checkout.module';
@@ -16,18 +17,14 @@ import { VerficationPhoneNumberModule } from './routes/verification-phone-number
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [typeorm],
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('HOST'),
-        port: +configService.get('PORT'),
-        username: configService.get('USERNAME'),
-        password: configService.get('PASSWORD'),
-        database: configService.get('DATABASE'),
-        synchronize: true,
-        autoLoadEntities: true,
-      }),
+      useFactory: async (configService: ConfigService) =>
+        configService.get('typeorm') ?? {},
       inject: [ConfigService],
     }),
     ConfigModule.forRoot({

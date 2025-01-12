@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 
 import { OrderReview } from '../../order-reviews/entities/order-review.entity';
-import { User } from '../../users/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { OrderStatuses, orderStatusesMap } from '../statuses';
 import { OrderStatusValidator } from '../validation';
 
