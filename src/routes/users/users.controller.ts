@@ -9,7 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { ManagerAuthGuard } from '../auth/guards';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -32,13 +31,13 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(ManagerAuthGuard)
+  @UseGuards()
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
-  @UseGuards(ManagerAuthGuard)
+  @UseGuards()
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
   }

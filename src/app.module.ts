@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import typeorm from './config/typeorm';
+import { AuthMiddleware } from './middleware/auth.middleware';
 import { FilesBucketModule } from './modules/aws';
 import { AuthModule } from './routes/auth/auth.module';
 import { CheckoutModule } from './routes/checkout/checkout.module';
@@ -12,6 +13,7 @@ import { OrdersModule } from './routes/orders/orders.module';
 import { ProductReviewsModule } from './routes/product-reviews/product-reviews.module';
 import { ProductsModule } from './routes/products/products.module';
 import { SearchModule } from './routes/search/search.module';
+import { UsersController } from './routes/users/users.controller';
 import { UsersModule } from './routes/users/users.module';
 import { VerficationPhoneNumberModule } from './routes/verification-phone-numbers/verification-phone-numbers.module';
 
@@ -43,4 +45,8 @@ import { VerficationPhoneNumberModule } from './routes/verification-phone-number
     ProductReviewsModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes(UsersController);
+  }
+}

@@ -3,6 +3,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -12,6 +14,8 @@ import { Order } from '../../orders/entities/order.entity';
 import { ProductReview } from '../../product-reviews/entities/product-review.entity';
 
 import { UserRole } from './user-role.entity';
+
+import { Role } from '@/routes/roles/entities/role.entity';
 
 @Entity()
 export class User {
@@ -51,6 +55,10 @@ export class User {
     onDelete: 'CASCADE',
   })
   productReviews: ProductReview[];
+
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable()
+  roles: Role[];
 
   @OneToMany(() => UserRole, (userRoles) => userRoles.user)
   userRoles: UserRole[];

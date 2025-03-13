@@ -6,18 +6,19 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { Permission } from './permission.entity';
-import { Role } from './roles.entity';
+import { Role } from './role.entity';
+
+import { Permission } from '@/routes/permissions/entities/permission.entity';
 
 @Entity('role_permissions')
 export class RolePermission {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', nullable: false })
   roleId: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', nullable: false })
   permissionId: number;
 
   @ManyToOne(() => Role, (role) => role.rolePermissions, {

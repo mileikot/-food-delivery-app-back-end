@@ -6,8 +6,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { Role } from './roles.entity';
 import { User } from './user.entity';
+
+import { Role } from '@/routes/roles/entities/role.entity';
 
 @Entity()
 export class UserRole {

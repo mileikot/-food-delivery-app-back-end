@@ -46,10 +46,11 @@ export class ManagersController {
     @Req() request: RequestWithUser,
     @Body() resetPasswordDto: ResetPasswordDto,
   ) {
-    return this.managersService.resetPassword(
-      request.managerId,
-      resetPasswordDto,
-    );
+    // return this.managersService.resetPassword(
+    //   request.managerId,
+    //   resetPasswordDto,
+    // ); TO DO - remove
+    return null;
   }
 
   @Patch(':id')

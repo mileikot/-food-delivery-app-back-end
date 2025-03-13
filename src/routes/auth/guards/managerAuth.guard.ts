@@ -35,8 +35,6 @@ export class ManagerAuthGuard implements CanActivate {
       this.configService.get<string>('JWT_SECRET'),
     );
 
-    request.managerId = managerId;
-
     if (!managerId) {
       throw new UnauthorizedException();
     }
